@@ -1,0 +1,105 @@
+<START> 	        ::= 	<DECLS>
+
+<DECLS> 	        ::= 	<DECL> | <DECLS> <DECL>
+<DECL> 		        ::= 	<FN_DECL>
+
+#########FUNCTIONS#########
+
+<PARAM>             ::=     <TYPE> <IDENT>
+<FN_DECL> 	        ::= 	<PARAM> <FN_PARAMS> <STMT_BLOCK>
+
+
+<FN_PARAMS>         ::= 	"("")" | "(" <PARAM_SEQ> ")"
+<PARAM_SEQ> 	    ::= 	<PARAM> | <PARAM_SEQ> "," <PARAM>
+
+<FN_CALL>           ::=     <IDENT>"("")" | <IDENT>"(" <EXPRS> ")"
+
+#########STATEMENTS#########
+
+<STMT_BLOCK> 	    ::= 	"{" "}" | "{" <STMTS> "}"
+<STMTS> 	        ::= 	<STMT> <NEWLINE> | <STMTS> <STMT> <NEWLINE>
+<STMT> 		        ::= 	<EXPR> | <VAR_DECL> | <LOOP> | <IF_STMT> | <RET> | <BREAK> | <CONTINUE> | <IO>
+
+<VAR_DECL>          ::=     <TYPE> <VAR_SEQ> | <TYPE> <VAR_SEQ> <ASSIGN_OP> <EXPR>
+<VAR_SEQ> 	        ::= 	<IDENT> | <IDENT> "," <VAR_SEQ> | <IDENT> <ASSIGN_OP> <EXPR> "," <VAR_SEQ>
+
+<RET> 		        ::=     "return" | "return" <EXPR>
+<BREAK>             ::=     "break"
+<CONTINUE>          ::=     "continue"
+
+<IO>                ::=     <INPUT> | <OUTPUT>
+<INPUT>             ::=     "input""(" <IDENTS> ")"
+<OUTPUT>            ::=     "output""(" <EXPRS> ")"
+
+<LOOP> 		        ::= 	<FOR_LOOP> | <WHILE_LOOP>
+<FOR_LOOP> 	        ::= 	"for" "(" <VAR_DECL> ";" <EXPR> ";" <EXPR> ")" <STMT_BLOCK>
+<WHILE_LOOP>        ::=     "while" "(" <EXPR> ")" <STMT_BLOCK>
+
+<IF_STMT>           ::=     "if" "(" <EXPR> ")" <STMT_BLOCK> | <IF_STMT> <ELSEIFS_STMT> | <IF_STMT> <ELSE_STMT> |<IF_STMT> <ELSEIFS_STMT> <ELSE_STMT>
+<ELSEIFS_STMT>      ::=     <ELSEIF_STMT> | <ELSEIFS_STMT> <ELSEIF_STMT>
+<ELSEIF_STMT>       ::=     "elseif" "(" <EXPR> ")" <STMT_BLOCK>
+<ELSE_STMT>         ::=     "else" <STMT_BLOCK>
+
+#########EXPRESSIONS#########
+
+<EXPRS>             ::=     <EXPR> | <EXPR> "," <EXPRS>
+<EXPR>              ::=     <OR_EXPR> | <OR_EXPR> <ASSIGN_OP> <EXPR>
+<OR_EXPR>           ::=     <AND_EXPR> | <AND_EXPR> <AND_OP> <OR_EXPR>
+<AND_EXPR>          ::=     <EQUAL_EXPR> | <EQUAL_EXPR> <OR_OP> <AND_EXPR>
+<EQUAL_EXPR>        ::=     <COMP_EXPR> | <COMP_EXPR> <EQUAL_OP> <EQUAL_EXPR>
+<COMP_EXPR> 	    ::=	    <ADD> | <ADD> <COMP_OP> <COMP_EXPR>
+<ADD> 		        ::= 	<MULT> | <MULT> <ADD_OP> <ADD>
+<MULT> 		        ::= 	<UNARY_EXPR> | <UNARY_EXPR> <MULT_OP> <MULT>
+<UNARY_EXPR>        ::=     <POSTFIX_EXPR> | <UNARY_OP> <UNARY_EXPR>
+<POSTFIX_EXPR>      ::=     <PRIMARY_EXPR> | <PRIMARY_EXPR> <INC_DEC_EXPR> | <FN_CALL>
+<PRIMARY_EXPR>      ::=     <IDENT> | <LITERAL> | "(" <EXPR> ")"
+
+<INC_DEC_EXPR>      ::=     "+""+" | "-""-"
+
+#########LITERALS_AND_TEXTS#########
+
+<LITERAL>           ::=     <INT> | <FLOAT> | <BOOLEAN> | <STRING>
+<INT>               ::=     <DIGITS>
+<FLOAT>             ::=     <DIGITS>"."<DIGITS> | "."<DIGITS> | <DIGITS>"."
+<FLOAT_E>           ::=     <FLOAT>"e"<DIGITS> | <FLOAT>"e""-"<DIGITS>
+<BOOLEAN>           ::=     "true" | "false"
+<STRING>            ::=     '"''"' | '"' <CHARS> '"' 
+
+<DIGITS> 	        ::= 	<DIGIT> | <DIGITS> <DIGIT> 
+<LETTER> 	        ::= 	<LCASE_LETTER> | <UCASE_LETTER> | <UNDERSCORE>
+<IDENTS>            ::=     <IDENT> | <IDENT> "," <IDENT>
+<IDENT> 	        ::= 	<LETTER> | <IDENT> <LETTER> | <IDENT> <DIGIT>
+
+<NEWLINE>           ::=     0x0A | 0x0A 0x0D
+<COMMENT>           ::=     "#" <NEWLINE> | "#" <TEXT_CHAR> <NEWLINE> | "/""#" <TEXTS> "#""/" | "/""#""#""/"
+<TEXTS>             ::=     <TEXT> | <TEXTS> <TEXT>
+<TEXT>              ::=     <TEXT_CHAR> | <NEWLINE>
+<TEXT_CHAR>         ::=     <ASCII_CHAR> | <TEXT_CHAR> <ASCII_CHAR>
+<ASCII_CHAR>        ::=     0x20 | 0x21 | ... | 0x7F
+<ASCII_CHAR_ALL>    ::=     0x00 | 0x01 | ... | 0x7F (not included: '"', '#', '\')
+<ESCAPABLE>         ::=     "\\"<ESCAPE>
+<ESCAPE>            ::=     '\\' | '\"' | 'n' | 't' | 'r' | '0'
+<CHAR>              ::=     <ASCII_CHAR_ALL> | <ESCAPE>
+<CHARS>             ::=     <CHAR> | <CHARS> <CHAR>
+
+#########PRIMITIVE_NAMES_AND_OPERATORS#########
+
+<TYPE> 		        ::= 	"int" | "float" | "string" | "boolean" | "void"
+<ADD_OP>            ::=     "+" | "-"
+<MULT_OP>           ::=     "*" | "/"
+<ASSIGN_OP>         ::=     "="
+<AND_OP>            ::=     "&""&"
+<OR_OP>             ::=     "|""|"
+<COMP_OP>	        ::=	    ">" | "<" | "="">" | "<""=" 
+<EQUAL_OP>          ::=     "=""=" | "!""="
+<UNARY_OP>          ::=     "+" | "-" | "!"
+<LCASE_LETTER>      ::= 	"a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z"
+<UCASE_LETTER>      ::= 	"A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J" | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T" | "U" | "V" | "W" | "X" | "Y" | "Z"
+<UNDERSCORE>        ::=     "_"
+<DIGIT> 	        ::= 	"0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+
+
+int a
+int a, b, c
+int a, b, c = 10
+int a = 10, b = 20, c = 30
