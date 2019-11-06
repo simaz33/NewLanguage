@@ -1,0 +1,186 @@
+int subOne(int x)
+{
+    return x - 1
+}
+
+int main()
+{
+    for (int i = 0; i < 6; i++)
+    {
+        if (i <= 3)
+        {
+            output(i)
+        }
+        elseif (i == 4)
+        {
+            output("It's four!")
+        }
+        else
+        {
+            continue
+        }
+    }
+
+    int y = 3
+    
+    y = subOne(y)
+
+}
+
+
+
+
+
+
+if (i <= 3)
+{
+    output(i)
+}
+elseif (i + 5 < foo(((a))) || true * false)
+{
+
+}
+else
+{
+
+}
+
+
+
+<START> ->  
+<IF_STMT> ->
+<IF_STMT> <ELSEIFS_STMT> <ELSE_STMT> ->
+"if" "(" <EXPR> ")" <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <OR_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <AND_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <EQUAL_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <ADD> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <MULT> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <UNARY_EXPR> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <POSTFIX_EXPR> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <PRIMARY_EXPR> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( <IDENT> <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <COMP_OP> <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <COMP_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <ADD> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <MULT> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <UNARY_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <POSTFIX_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <PRIMARY_EXPR> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <LITERAL> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= <INT> ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) <STMT_BLOCK> <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) "{" <STMTS> "}" <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { <STMT> <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { <IO> <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { <OUTPUT> <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { "output""(" <EXPRS> ")" <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<OR_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<AND_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<EQUAL_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<COMP_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<ADD>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<MULT>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<UNARY_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<POSTFIX_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<PRIMARY_EXPR>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(<IDENT>) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) <NEWLINE> } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } <ELSEIFS_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } <ELSEIF_STMT> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } "elseif" "(" <EXPR> ")" <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <OR_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <ADD> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <ADD> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <MULT> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <UNARY_EXPR> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <POSTFIX_EXPR> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <PRIMARY_EXPR> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( <IDENT> <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i <ADD_OP> <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <MULT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <UNARY_EXPR> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <POSTFIX_EXPR> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <PRIMARY_EXPR> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <LITERAL> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + <INT> <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 <COMP_OP> <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <COMP_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <ADD> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <MULT> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <UNARY_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <POSTFIX_EXPR> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <FN_CALL> <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < <IDENT>"(" <EXPRS> ")" <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<EXPRS>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<OR_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<AND_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<EQUAL_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<COMP_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<ADD>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<MULT>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<UNARY_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<POSTFIX_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(<PRIMARY_EXPR>) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo("(" <EXPR> ")") <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<OR_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<AND_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<EQUAL_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<COMP_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<ADD>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<MULT>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<UNARY_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<POSTFIX_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo((<PRIMARY_EXPR>)) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(("(" <EXPR> ")")) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<OR_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<AND_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<EQUAL_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<COMP_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<ADD>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<MULT>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<UNARY_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<POSTFIX_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<PRIMARY_EXPR>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((<IDENT>))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) <OR_OP> <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <AND_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <EQUAL_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <COMP_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <ADD> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <MULT> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <MULT> <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <POSTFIX_EXPR> <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <PRIMARY_EXPR> <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <LITERAL> <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || <BOOLEAN> <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true <MULT_OP> <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * <UNARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * <POSTFIX_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * <PRIMARY_EXPR> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * <LITERAL> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * <BOOLEAN> ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * false ) <STMT_BLOCK> <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * false ) "{" "}" <ELSE_STMT> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * false ) {} "else" <STMT_BLOCK> ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * false ) {} else "{" "}" ->
+if ( i <= 3 ) { output(i) } elseif ( i + 5 < foo(((a))) || true * false ) {} else{ }
+
+if ( i <= 3 ) 
+{
+    output(i)
+} 
+elseif (i + 5 < foo(((a))) || true * false)
+{
+
+} 
+else
+{
+
+}

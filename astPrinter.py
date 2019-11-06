@@ -40,7 +40,7 @@ class ASTPrinter():
             self.print(elemTitle, element)
 
     def printNode(self, title, node):
-        self.printText(title, node.__class__.__name__)
+        self.printText(title, node)
         self.indentLevel += 1
         node.printNode(self)
         self.indentLevel -= 1

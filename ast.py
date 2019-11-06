@@ -3,6 +3,9 @@ class Node():
         print('PrintNode not implemented for', self.__name__)
         exit(1)
 
+    def __str__(self):
+        return self.__class__.__name__
+
 class Param(Node):
     def __init__(self, type, name):
         self.name = name
@@ -43,43 +46,18 @@ class DeclFn(Decl):
         p.print('params', self.params)
         p.print('body', self.body)
 
-class DeclInt(Decl):
-    def __init__(self, name, value):
+class StmtVarDecl(Decl):
+    def __init__(self, type, name, value):
+        self.type = type
         self.name = name
         self.value = value
 
     def printNode(self, p):
-        p.print('int', self.name)
+        p.print('type', self.type)
+        p.print('name', self.name)
         p.print('value', self.value)
 
-class DeclFloat(Decl):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-    def printNode(self, p):
-        p.print('float', self.name)
-        p.print('value', self.value)
-
-class DeclString(Decl):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-    def printNode(self, p):
-        p.print('string', self.name)
-        p.print('value', self.value)
-
-class DeclBoolean(Decl):
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-
-    def printNode(self, p):
-        p.print('boolean', self.name)
-        p.print('value', self.value)
-
-class Expr(Node):
+class Expr(Node): 
     def __init__(self):
         super()
 
@@ -90,11 +68,13 @@ class ExprBinary(Expr):
         self.right = right
 
     def printNode(self, p):
-        p.print('op', self.op)
         p.print('left', self.left)
         p.print('right', self.right)
 
-class ExprUnary(Expr):
+    def __str__(self):
+        return self.__class__.__name__ + '(' + self.op + ')' 
+
+class ExprNot(Expr):
     def __init__(self, op, right):
         self.op = op
         self.right = right
@@ -103,42 +83,39 @@ class ExprUnary(Expr):
         p.print('op', self.op)
         p.print('right', self.right)
 
-class ExprLit(Expr):
-    def __init__(self, lit):
-        self.lit = lit.value
+class ExprPostfix(Expr):
+    def __init__(self, type, name):
+        self.type = type
+        self.name = name
 
     def printNode(self, p):
+        p.print('type', self.type.type)
+        p.print('name', self.name)
+
+class ExprLit(Expr):
+    def __init__(self, type, lit):
+        self.type = type
+        self.lit = lit
+
+    def printNode(self, p):
+        p.print('type', self.type)
         p.print('lit', self.lit)
 
 class ExprVar(Expr):
     def __init__(self, name):
-        self.name = name.value
+        self.name = name
 
     def printNode(self, p):
         p.print('name', self.name)
 
 class ExprFnCall(Expr):
     def __init__(self, name, args):
-        self.name = name.value
+        self.name = name
         self.args = args
 
     def printNode(self, p):
         p.print('name', self.name)
         p.print('args', self.args)
-
-class ExprInc(Expr):
-    def __init__(self, name):
-        self.name = name.value
-
-    def printNode(self, p):
-        p.print('name', self.name)
-
-class ExprDec(Expr):
-    def __init__(self, name):
-        self.name = name.value
-
-    def printNode(self, p):
-        p.print('name', self.name)
   
 class Stmt(Node):
     def __init__(self):

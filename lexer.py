@@ -22,7 +22,8 @@ keywords = {
 }
 
 class Lexer():
-    def __init__(self, input):
+    def __init__(self, filename, input):
+        self.filename           = filename
         self.input              = input
         self.buffer             = ''
         self.floatEBuffer       = ''
@@ -174,6 +175,9 @@ class Lexer():
         elif self.currentChar is '.':
             self.add()
             self.beginToken('FLOAT')
+        
+        else:
+            self.setError('invalid character found')
     
     def lexCommentSl(self):
         if self.currentChar is '\n':
@@ -467,7 +471,7 @@ class Lexer():
 
     def setError(self, msg):
         if (msg):
-            self.error = '\nError in file:{}:{}:{}:{}'.format(filename, self.lineNr, self.columnNr, msg)
+            self.error = '\nError in file:{}:{}:{}:{}'.format(self.filename, self.lineNr, self.columnNr, msg)
 
         self.running = False      
 

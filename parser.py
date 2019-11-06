@@ -1,7 +1,6 @@
 from ast import (Node, Param, Program, StmtBlock, Decl,
-    DeclFn, DeclInt, DeclFloat, DeclString, DeclBoolean,
-    Expr, ExprBinary, ExprUnary, ExprFnCall, ExprLit, 
-    ExprVar, ExprInc, ExprDec, Stmt, StmtIf, StmtElseIf,
+    DeclFn, StmtVarDecl, Expr, ExprBinary, ExprNot, ExprFnCall,  
+    ExprLit, ExprVar, ExprPostfix, Stmt, StmtIf, StmtElseIf, 
     StmtElse, StmtFor, StmtWhile, StmtInput, StmtOutput, StmtBreak, 
     StmtContinue, StmtReturn, Type, TypePrim)
 
@@ -11,6 +10,12 @@ class Parser():
         self.tokens = tokens
         self.filename = filename
         self.offset = 0
+        self.types = {
+            'INT_KW' : 'int',
+            'FLOAT_KW' : 'float',
+            'STRING_KW' : 'string',
+            'BOOLEAN_KW' : 'boolean'
+        }
 
     def accept(self, tokenType):
         currentToken = self.tokens[self.offset]
@@ -46,7 +51,7 @@ class Parser():
 
     def parseDeclFn(self):
         declType = self.parseType()
-        name = self.expect('IDENT').value
+        name = self.expect('IDENT')
         self.expect('PAREN_OPEN')
         params = self.parseParams() 
         self.expect('PAREN_CLOSE') 
@@ -171,7 +176,7 @@ class Parser():
 
         while True:
             if self.accept('NOT_OP'):
-                result = ExprUnary('NOT', self.parseExprPrimary())
+                result = ExprNot('NOT', self.parseExprPrimary())
 
             else:
                 break
@@ -224,17 +229,17 @@ class Parser():
     def parseExprStr(self):
         lit = self.expect('STR')
 
-        return ExprLit(lit)
+        return ExprLit('STR', lit)
 
     def parseExprFloat(self):
         lit = self.expect('FLOAT')
         
-        return ExprLit(lit)
+        return ExprLit('FLOAT', lit)
 
     def parseExprInt(self):
         lit = self.expect('INT')
 
-        return ExprLit(lit)
+        return ExprLit('INT', lit)
 
     def parseExprVar(self):
         name = self.expect('IDENT')
@@ -243,12 +248,12 @@ class Parser():
             return self.parseExprFnCall(name)
 
         if self.tokenType() == 'INC':
-            self.expect('INC')
-            return ExprInc(name)
+            postfixType = self.expect('INC')
+            return ExprPostfix(postfixType, name)
 
         if self.tokenType() == 'DEC':
-            self.expect('DEC')
-            return ExprDec(name)
+            postfixType = self.expect('DEC')
+            return ExprPostfix(postfixType, name)
         
         return ExprVar(name)
 
@@ -262,7 +267,7 @@ class Parser():
 
     def parseParam(self):
         paramType = self.parseType()
-        name = self.expect('IDENT').value
+        name = self.expect('IDENT')
         
         return Param(paramType, name)
 
@@ -305,16 +310,16 @@ class Parser():
             return self.parseStmtContinue()
 
         elif self.tokenType() == 'INT_KW':
-            return self.parseStmtIntDecl()
+            return self.parseStmtVarDecl()
 
         elif self.tokenType() == 'FLOAT_KW':
-            return self.parseStmtFloatDecl()
+            return self.parseStmtVarDecl()
 
         elif self.tokenType() == 'STRING_KW':
-            return self.parseStmtStringDecl()
+            return self.parseStmtVarDecl()
 
         elif self.tokenType() == 'BOOLEAN_KW':
-            return self.parseStmtBooleanDecl()
+            return self.parseStmtVarDecl()
 
         else:
             return self.parseExpr()
@@ -337,106 +342,29 @@ class Parser():
 
         return StmtBlock(stmts)
 
-    def parseStmtIntDecl(self):
-        integers = []
-        declType = self.expect('INT_KW')
-        name = self.expect('IDENT').value
+    def parseStmtVarDecl(self):
+        vars = []
+        declType = self.parseType()
+        name = self.expect('IDENT')
         value = None
 
         if self.accept('ASSIGN_OP'):
             value = self.parseExpr()
 
-        integers.append(DeclInt(name, value))
+        vars.append(StmtVarDecl(declType, name, value))
 
         while self.accept('COMMA'):
-            integers.append(self.parseInts())
+            vars.append(self.parseVars(declType))
 
-        return integers
+        return vars
 
-    def parseInts(self):
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        return DeclInt(name, value)
-
-
-    def parseStmtFloatDecl(self):
-        floats = []
-        declType = self.expect('FLOAT_KW')
-        name = self.expect('IDENT').value
-        value = None
+    def parseVars(self, declType):
+        name = self.expect('IDENT')
 
         if self.accept('ASSIGN_OP'):
             value = self.parseExpr()
 
-        floats.append(DeclFloat(name, value))
-
-        while self.accept('COMMA'):
-            floats.append(self.parseFloats())
-
-        return floats
-
-    def parseFloats(self):
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        return DeclFloat(name, value)
-
-    def parseStmtStringDecl(self):
-        strings = []
-        declType = self.expect('STRING_KW')
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        strings.append(DeclString(name, value))
-
-        while self.accept('COMMA'):
-            strings.append(self.parseStrings())
-
-        return strings
-
-    def parseStrings(self):
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        return DeclString(name, value)
-
-    def parseStmtBooleanDecl(self):
-        booleans = []
-        declType = self.expect('BOOLEAN_KW')
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        booleans.append(DeclBoolean(name, value))
-
-        while self.accept('COMMA'):
-            booleans.append(self.parseBooleans())
-
-        return booleans
-
-    def parseBooleans(self):
-        name = self.expect('IDENT').value
-        value = None
-
-        if self.accept('ASSIGN_OP'):
-            value = self.parseExpr()
-
-        return DeclBoolean(name, value)
+        return StmtVarDecl(declType, name, value)
 
     def parseStmtBreak(self):
         breakKw = self.expect('BREAK_KW')
