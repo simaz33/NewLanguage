@@ -8,7 +8,7 @@ from astPrinter import ASTPrinter
 if __name__ == '__main__':
     filename = sys.argv[1]
     input = open(filename, 'r').read()
-    lexer = Lexer(input)
+    lexer = Lexer(filename, input)
     lexer.lexAll()
     lexer.dumpTokens()
     lexer.displayError()

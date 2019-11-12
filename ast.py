@@ -58,10 +58,12 @@ class StmtVarDecl(Decl):
         p.print('value', self.value)
 
 class Expr(Node): 
-    def __init__(self):
-        super()
+    pass
 
-class ExprBinary(Expr):
+class ExprStmt(Expr):
+    pass
+
+class ExprBinary(ExprStmt):
     def __init__(self, op, left, right):
         self.op = op
         self.left = left
@@ -72,25 +74,18 @@ class ExprBinary(Expr):
         p.print('right', self.right)
 
     def __str__(self):
-        return self.__class__.__name__ + '(' + self.op + ')' 
+        return f'{self.__class__.__name__}({self.op})' 
 
-class ExprNot(Expr):
+class ExprUnary(ExprStmt):
     def __init__(self, op, right):
         self.op = op
         self.right = right
 
     def printNode(self, p):
-        p.print('op', self.op)
         p.print('right', self.right)
 
-class ExprPostfix(Expr):
-    def __init__(self, type, name):
-        self.type = type
-        self.name = name
-
-    def printNode(self, p):
-        p.print('type', self.type.type)
-        p.print('name', self.name)
+    def __str__(self):
+        return f'{self.__class__.__name__}({self.op})'
 
 class ExprLit(Expr):
     def __init__(self, type, lit):
@@ -122,23 +117,15 @@ class Stmt(Node):
         super()
 
 class StmtIf(Stmt):
-    def __init__(self, cond, body, elseIfStmts, elseStmt):
-        self.cond = cond
-        self.body = body
-        self.elseIfStmts = elseIfStmts
+    def __init__(self, branches, elseStmt):
+        self.branches = branches
         self.elseStmt = elseStmt
 
     def printNode(self, p):
-        p.print('cond', self.cond)
-        p.print('body', self.body)
+        p.print('cond', self.branches)
+        p.print('else', self.elseStmt)
 
-        if self.elseIfStmts:
-            p.print('else if', self.elseIfStmts)
-
-        if self.elseStmt:
-            p.print('else', self.elseStmt)
-
-class StmtElseIf(Stmt):
+class StmtBranch(Stmt):
     def __init__(self, cond, body):
         self.cond = cond
         self.body = body

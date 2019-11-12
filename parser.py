@@ -1,8 +1,8 @@
 from ast import (Node, Param, Program, StmtBlock, Decl,
-    DeclFn, StmtVarDecl, Expr, ExprBinary, ExprNot, ExprFnCall,  
-    ExprLit, ExprVar, ExprPostfix, Stmt, StmtIf, StmtElseIf, 
-    StmtElse, StmtFor, StmtWhile, StmtInput, StmtOutput, StmtBreak, 
-    StmtContinue, StmtReturn, Type, TypePrim)
+    DeclFn, StmtVarDecl, Expr, ExprBinary, ExprUnary, ExprFnCall,  
+    ExprLit, ExprVar, Stmt, StmtIf, StmtBranch, StmtFor, 
+    StmtWhile, StmtInput, StmtOutput, StmtBreak, StmtContinue,
+    StmtReturn, Type, TypePrim)
 
 
 class Parser():
@@ -125,16 +125,16 @@ class Parser():
 
         while True:
             if self.accept('COMP_L'):
-                result = ExprBinary('COMPARE_LESS', result, self.parseExprAdd())
+                result = ExprBinary('CMP_L', result, self.parseExprAdd())
             
             elif self.accept('COMP_LE'):
-                result = ExprBinary('COMPARE_LESS_EQUAL', result, self.parseExprAdd())
+                result = ExprBinary('CMP_LE', result, self.parseExprAdd())
 
             elif self.accept('COMP_G'):
-                result = ExprBinary('COMPARE_GREATER', result, self.parseExprAdd())
+                result = ExprBinary('CMP_G', result, self.parseExprAdd())
 
             elif self.accept('COMP_GE'):
-                result = ExprBinary('COMPARE_GREATER_EQUAL', result, self.parseExprAdd())
+                result = ExprBinary('CMP_GE', result, self.parseExprAdd())
             
             else:
                 break
@@ -176,7 +176,7 @@ class Parser():
 
         while True:
             if self.accept('NOT_OP'):
-                result = ExprNot('NOT', self.parseExprPrimary())
+                result = ExprUnary('NOT', self.parseExprPrimary())
 
             else:
                 break
@@ -248,12 +248,12 @@ class Parser():
             return self.parseExprFnCall(name)
 
         if self.tokenType() == 'INC':
-            postfixType = self.expect('INC')
-            return ExprPostfix(postfixType, name)
+            self.expect('INC')
+            return ExprUnary('INC', name)
 
         if self.tokenType() == 'DEC':
-            postfixType = self.expect('DEC')
-            return ExprPostfix(postfixType, name)
+            self.expect('DEC')
+            return ExprUnary('DEC', name)
         
         return ExprVar(name)
 
@@ -414,33 +414,29 @@ class Parser():
         return StmtFor(decl, cond, final, body)
 
     def parseStmtIf(self):
+        branches = []
         self.expect('IF_KW')
         cond = self.parseExpr()
         body = self.parseStmtBlock()
-        elseIfStmts = None
+        branches.append(StmtBranch(cond, body))
         elseStmt = None
 
         while self.accept('ELSEIF_KW'):
-            elseIfStmts = []
-            elseIfStmts.append(self.parseStmtElseIf())
+            branches.append(self.parseStmtElseIf())
 
         if self.accept('ELSE_KW'):
             elseStmt = self.parseStmtElse()
 
-        return StmtIf(cond, body, elseIfStmts, elseStmt)
+        return StmtIf(branches, elseStmt)
 
     def parseStmtElseIf(self):
-        self.expect('ELSEIF_KW')
         cond = self.parseExpr()
         body = self.parseStmtBlock()
 
-        return StmtElseIf(cond, body)
+        return StmtBranch(cond, body)
 
     def parseStmtElse(self):
-        self.expect('ELSE_KW')
-        body = self.parseStmtBlock()
-        
-        return StmtElse(body)
+       return self.parseStmtBlock()
 
     def parseStmtReturn(self):
         retKw = self.expect('RET_KW')
