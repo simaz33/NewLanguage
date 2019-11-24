@@ -1,6 +1,6 @@
 from ast import (Node, Param, Program, StmtBlock, Decl,
     DeclFn, StmtVarDecl, Expr, ExprBinary, ExprUnary, ExprFnCall,  
-    ExprLit, ExprVar, Stmt, StmtIf, StmtBranch, StmtFor, 
+    ExprLit, ExprVar, Stmt, StmtIf, StmtBranch, StmtFor, StmtExpr,
     StmtWhile, StmtInput, StmtOutput, StmtBreak, StmtContinue,
     StmtReturn, Type, TypePrim)
 
@@ -10,12 +10,6 @@ class Parser():
         self.tokens = tokens
         self.filename = filename
         self.offset = 0
-        self.types = {
-            'INT_KW' : 'int',
-            'FLOAT_KW' : 'float',
-            'STRING_KW' : 'string',
-            'BOOLEAN_KW' : 'boolean'
-        }
 
     def accept(self, tokenType):
         currentToken = self.tokens[self.offset]
@@ -322,7 +316,8 @@ class Parser():
             return self.parseStmtVarDecl()
 
         else:
-            return self.parseExpr()
+            expr = self.parseExpr()
+            return StmtExpr(expr)
 
     def parseStmtBlock(self):
         stmts = []
@@ -374,7 +369,7 @@ class Parser():
     def parseStmtContinue(self):
         continueKw = self.expect('CONTINUE_KW')
 
-        return StmtBreak(continueKw)
+        return StmtContinue(continueKw)
 
     def parseStmtOutput(self):
         outputKw = self.expect('OUTPUT_KW')
@@ -446,24 +441,19 @@ class Parser():
 
     def parseType(self):
         if self.tokenType() == 'INT_KW':
-            self.expect('INT_KW')
-            return TypePrim('INT')
+            return TypePrim(self.expect('INT_KW'), 'int')
 
         elif self.tokenType() == 'FLOAT_KW': 
-            self.expect('FLOAT_KW')
-            return TypePrim('FLOAT')
+            return TypePrim(self.expect('FLOAT_KW'), 'float')
 
         elif self.tokenType() == 'STRING_KW':
-            self.expect('STRING_KW')
-            return TypePrim('STRING')
+            return TypePrim(self.expect('STRING_KW'), 'string')
         
         elif self.tokenType() == 'BOOLEAN_KW': 
-            self.expect('BOOLEAN_KW')
-            return TypePrim('BOOLEAN')
+            return TypePrim(self.expect('BOOLEAN_KW'), 'boolena')
 
         elif self.tokenType() == 'VOID_KW': 
-            self.expect('VOID_KW')
-            return TypePrim('VOID')
+            return TypePrim(self.expect('VOID_KW'), 'void')
 
         else:
             self.error('Invalid type declaration type: {}'.format(self.tokenType()))

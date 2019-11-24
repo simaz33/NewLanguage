@@ -46,24 +46,10 @@ class DeclFn(Decl):
         p.print('params', self.params)
         p.print('body', self.body)
 
-class StmtVarDecl(Decl):
-    def __init__(self, type, name, value):
-        self.type = type
-        self.name = name
-        self.value = value
-
-    def printNode(self, p):
-        p.print('type', self.type)
-        p.print('name', self.name)
-        p.print('value', self.value)
-
 class Expr(Node): 
     pass
 
-class ExprStmt(Expr):
-    pass
-
-class ExprBinary(ExprStmt):
+class ExprBinary(Expr):
     def __init__(self, op, left, right):
         self.op = op
         self.left = left
@@ -76,7 +62,7 @@ class ExprBinary(ExprStmt):
     def __str__(self):
         return f'{self.__class__.__name__}({self.op})' 
 
-class ExprUnary(ExprStmt):
+class ExprUnary(Expr):
     def __init__(self, op, right):
         self.op = op
         self.right = right
@@ -113,8 +99,18 @@ class ExprFnCall(Expr):
         p.print('args', self.args)
   
 class Stmt(Node):
-    def __init__(self):
-        super()
+    pass
+
+class StmtVarDecl(Stmt):
+    def __init__(self, type, name, value):
+        self.type = type
+        self.name = name
+        self.value = value
+
+    def printNode(self, p):
+        p.print('type', self.type)
+        p.print('name', self.name)
+        p.print('value', self.value)
 
 class StmtIf(Stmt):
     def __init__(self, branches, elseStmt):
@@ -122,10 +118,10 @@ class StmtIf(Stmt):
         self.elseStmt = elseStmt
 
     def printNode(self, p):
-        p.print('cond', self.branches)
+        p.print('branch', self.branches)
         p.print('else', self.elseStmt)
 
-class StmtBranch(Stmt):
+class StmtBranch(Node):
     def __init__(self, cond, body):
         self.cond = cond
         self.body = body
@@ -170,7 +166,7 @@ class StmtInput(Stmt):
         self.args = args
 
     def printNode(self, p):
-        p.print('input_kw', 'input')
+        p.print('input_kw', self.inputKw)
         p.print('args', self.args)    
 
 class StmtOutput(Stmt):
@@ -179,7 +175,7 @@ class StmtOutput(Stmt):
         self.value = value
 
     def printNode(self, p):
-        p.print('output_kw', 'output')
+        p.print('output_kw', self.outputKw)
         p.print('value', self.value)   
 
 class StmtBreak(Stmt):
@@ -187,14 +183,14 @@ class StmtBreak(Stmt):
         self.breakKw = breakKw
 
     def printNode(self, p):
-        p.print('break_kw', 'break')
+        p.print('break_kw', self.breakKw)
 
 class StmtContinue(Stmt):
     def __init__(self, continueKw):
         self.continueKw = continueKw
 
     def printNode(self, p):
-        p.print('continue_kw', 'continue')
+        p.print('continue_kw', self.continueKw)
 
 class StmtReturn(Stmt):
     def __init__(self, retKw, value):
@@ -202,15 +198,23 @@ class StmtReturn(Stmt):
         self.value = value
 
     def printNode(self, p):
-        p.print('return_kw', 'return')
+        p.print('return_kw', self.retKw)
         p.print('value', self.value)
+
+class StmtExpr(Stmt):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def printNode(self, p):
+        p.print('expr', self.expr)
 
 class Type(Node):
     def __init__(self):
         super()
 
 class TypePrim(Type):
-    def __init__(self, kind):
+    def __init__(self, token, kind):
+        self.token = token
         self.kind = kind
 
     def printNode(self, p):
