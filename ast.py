@@ -1,15 +1,32 @@
+from scope import Scope
+
 class Node():
     def printNode(self, p):
         print('PrintNode not implemented for', self.__name__)
         exit(1)
+
+    def addChildren(self, *children):
+        for child in children:
+            if child is None:
+                continue
+            child.parent = self
+
+    def findAncestor(self, ancestorClass):
+        currNode = self.parent
+        while currNode:
+            if isinstance(currNode, ancestorClass):
+                return currNode
+            else:
+                currNode = currNode.parent
 
     def __str__(self):
         return self.__class__.__name__
 
 class Param(Node):
     def __init__(self, type, name):
-        self.name = name
+        self.addChildren(type)
         self.type = type
+        self.name = name
 
     def printNode(self, p):
         p.print('name', self.name)
@@ -17,6 +34,7 @@ class Param(Node):
 
 class Program(Node):
     def __init__(self, decls):
+        self.addChildren(*decls)
         self.decls = decls
 
     def printNode(self, p):
@@ -24,6 +42,7 @@ class Program(Node):
 
 class StmtBlock(Node):
     def __init__(self, stmts):
+        self.addChildren(*stmts)
         self.stmts = stmts
 
     def printNode(self, p):
@@ -35,6 +54,7 @@ class Decl(Node):
 
 class DeclFn(Decl):
     def __init__(self, type, name, params, body):
+        self.addChildren(params, type, body)
         self.type = type
         self.name = name
         self.params = params
@@ -46,11 +66,19 @@ class DeclFn(Decl):
         p.print('params', self.params)
         p.print('body', self.body)
 
+    def resolveNames(self, parentScope):
+        scope = Scope(parentScope)
+        for param in self.params:
+            scope.add(param.name, param)
+        
+        self.body.resolveNames(scope)
+
 class Expr(Node): 
     pass
 
 class ExprBinary(Expr):
     def __init__(self, op, left, right):
+        self.addChildren(left, right)
         self.op = op
         self.left = left
         self.right = right
@@ -59,11 +87,33 @@ class ExprBinary(Expr):
         p.print('left', self.left)
         p.print('right', self.right)
 
+    def resolveNames(self, scope):
+        self.left.resolveNames(scope)
+        self.right.resolveNames(scope)
+
     def __str__(self):
         return f'{self.__class__.__name__}({self.op})' 
 
+
+# ExprBinArith: TYPE + TYPE -> TYPE; is_arithmetic
+class ExprBinArith(ExprBinary):
+    pass
+
+# ExprBinComparison: TYPE < TYPE -> BOOL; is_comparable
+class ExprBinComparison(ExprBinary):
+    pass
+
+# ExprBinEquality: TYPE == TYPE -> BOOL; has_value
+class ExprBinEquality(ExprBinary):
+    pass
+
+# ExprBinLogic: BOOL || BOOL -> BOOL
+class ExprBinLogic(ExprBinary):
+    pass
+
 class ExprUnary(Expr):
     def __init__(self, op, right):
+        self.addChildren(right)
         self.op = op
         self.right = right
 
@@ -97,6 +147,9 @@ class ExprFnCall(Expr):
     def printNode(self, p):
         p.print('name', self.name)
         p.print('args', self.args)
+
+    def resolveNames(self, scope):
+        self.targetNode = scope.resolveName(self.target)
   
 class Stmt(Node):
     pass
@@ -203,6 +256,7 @@ class StmtReturn(Stmt):
 
 class StmtExpr(Stmt):
     def __init__(self, expr):
+        self.addChildren(expr)
         self.expr = expr
 
     def printNode(self, p):

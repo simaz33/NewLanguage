@@ -4,6 +4,7 @@ import sys
 from parser import Parser
 from lexer import Lexer
 from astPrinter import ASTPrinter
+from scope import Scope
 
 def main():
     filename = sys.argv[1]
