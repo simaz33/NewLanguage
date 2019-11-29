@@ -1,6 +1,8 @@
 from scope import Scope
 
 class Node():
+    self.parent = None
+    
     def printNode(self, p):
         print('PrintNode not implemented for', self.__name__)
         exit(1)
@@ -19,6 +21,9 @@ class Node():
             else:
                 currNode = currNode.parent
 
+    def resolveNames(self, scope):
+        print('resolveNames() is not implemented for: {self.__class__.__name__}')
+
     def __str__(self):
         return self.__class__.__name__
 
@@ -32,6 +37,9 @@ class Param(Node):
         p.print('name', self.name)
         p.print('type', self.type)
 
+    def resolveNames(self, scope):
+        scope.add(self.name, self)
+
 class Program(Node):
     def __init__(self, decls):
         self.addChildren(*decls)
@@ -40,6 +48,13 @@ class Program(Node):
     def printNode(self, p):
         p.print('decls', self.decls)
 
+    def resolveNames(self, scope):
+        for decl in self.decls:
+            scope.add(decl.name, decl)
+
+        for decl in self.decls:
+            decl.resolveNames(scope)
+
 class StmtBlock(Node):
     def __init__(self, stmts):
         self.addChildren(*stmts)
@@ -47,6 +62,11 @@ class StmtBlock(Node):
 
     def printNode(self, p):
         p.print('stmts', self.stmts)
+
+    def resolveNames(self, parentScope):
+        scope = Scope(parentScope)
+        for stmt in self.stmts:
+            stmt.resolveNames(scope)
 
 class Decl(Node):
     def __init__(self):
@@ -69,7 +89,7 @@ class DeclFn(Decl):
     def resolveNames(self, parentScope):
         scope = Scope(parentScope)
         for param in self.params:
-            scope.add(param.name, param)
+            param.resolveNames(scope)
         
         self.body.resolveNames(scope)
 
@@ -120,6 +140,9 @@ class ExprUnary(Expr):
     def printNode(self, p):
         p.print('right', self.right)
 
+    def resolveNames(self, scope):
+        self.right.resolveNames(scope)
+
     def __str__(self):
         return f'{self.__class__.__name__}({self.op})'
 
@@ -132,12 +155,18 @@ class ExprLit(Expr):
         p.print('type', self.type)
         p.print('lit', self.lit)
 
+    def resolveNames(self, scope):
+        pass
+
 class ExprVar(Expr):
     def __init__(self, name):
         self.name = name
 
     def printNode(self, p):
         p.print('name', self.name)
+
+    def resolveNames(self, scope):
+        self.targetNode = scope.resolveName(self.name)
 
 class ExprFnCall(Expr):
     def __init__(self, name, args):
@@ -150,12 +179,15 @@ class ExprFnCall(Expr):
 
     def resolveNames(self, scope):
         self.targetNode = scope.resolveName(self.target)
+        for arg in args:
+            arg.resolveNames(scope)
   
 class Stmt(Node):
     pass
 
 class StmtVarDecl(Stmt):
     def __init__(self, type, name, value):
+        self.addChildren(type, value)
         self.type = type
         self.name = name
         self.value = value
@@ -164,6 +196,9 @@ class StmtVarDecl(Stmt):
         p.print('type', self.type)
         p.print('name', self.name)
         p.print('value', self.value)
+
+    def resolveNames(self, scope):
+        scope.add(self.name, self)
 
 class StmtIf(Stmt):
     def __init__(self, branches, elseStmt):
@@ -183,7 +218,17 @@ class StmtBranch(Node):
         p.print('cond', self.cond)
         p.print('body', self.body)
 
-class StmtFor(Stmt):
+class StmtElse(Stmt):
+    def __init__(self, body):
+        self.body = body
+
+    def printNode(self, p):
+        p.print('body', self.body)
+
+class StmtLoop(Stmt):
+    pass
+
+class StmtFor(StmtLoop):
     def __init__(self, decl, cond, final, body):
         self.decl = decl
         self.cond = cond
@@ -197,21 +242,19 @@ class StmtFor(Stmt):
         p.print('body', self.body)
 
 
-class StmtElse(Stmt):
-    def __init__(self, body):
-        self.body = body
-
-    def printNode(self, p):
-        p.print('body', self.body)
-
-class StmtWhile(Stmt):
+class StmtWhile(StmtLoop):
     def __init__(self, cond, body):
+        self.addChildren(cond, body)
         self.cond = cond
         self.body = body
 
     def printNode(self, p):
         p.print('cond', self.cond)
         p.print('body', self.body)
+
+    def resolveNames(self, scope):
+        self.cond.resolveNames(scope)
+        self.body.resolveNames(scope)
 
 class StmtInput(Stmt):
     def __init__(self, inputKw, args):
@@ -238,21 +281,50 @@ class StmtBreak(Stmt):
     def printNode(self, p):
         p.print('break_kw', self.breakKw)
 
+    def resolveNames(self, scope):
+        currNode = self.parent
+        while currNode:
+            if isinstance(currNode, StmtLoop):
+                self.targetNode = currNode
+                break
+            else:
+                currNode = currNode.parent
+
+        if not self.targetNode:
+            print(f'filename:{self.breakKw.lineNr}:error: break is not in loop')
+
 class StmtContinue(Stmt):
     def __init__(self, continueKw):
         self.continueKw = continueKw
 
     def printNode(self, p):
         p.print('continue_kw', self.continueKw)
+    
+    def resolveNames(self, scope):
+        currNode = self.parent
+        while currNode:
+            if isinstance(currNode, StmtLoop):
+                self.targetNode = currNode
+                break
+            else:
+                currNode = currNode.parent
+
+        if not self.targetNode:
+            print(f'filename:{self.breakKw.lineNr}:error: break is not in loop')
 
 class StmtReturn(Stmt):
     def __init__(self, retKw, value):
+        self.addChildren(value)
         self.retKw = retKw
         self.value = value
 
     def printNode(self, p):
         p.print('return_kw', self.retKw)
         p.print('value', self.value)
+
+    def resolveNames(self, scope):
+        if self.value:
+            self.value.resolveNames(scope)
 
 class StmtExpr(Stmt):
     def __init__(self, expr):
@@ -261,6 +333,9 @@ class StmtExpr(Stmt):
 
     def printNode(self, p):
         p.print('expr', self.expr)
+
+    def resolveNames(self, scope):
+        self.expr.resolveNames(scope)
 
 class Type(Node):
     def __init__(self):
