@@ -1,10 +1,10 @@
 class Token():
-    def __init__(self, _type, _value, _lineNr):
-        self.type       = _type
-        self.lineNr     = _lineNr
-        self.setValueWIthType(_value)
+    def __init__(self, type, value, lineNr):
+        self.type       = type
+        self.lineNr     = lineNr
+        self.setValue(value)
 
-    def setValueWIthType(self, _value):
+    def setValue(self, _value):
         if self.type == 'INT':
             self.value = int(_value)
 

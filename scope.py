@@ -1,12 +1,13 @@
+import time
 class Scope():
-    def __init__(self, parentScope, filename = 'default'):
+    def __init__(self, parentScope, filename = '??'):
         self.filename = filename
         self.parentScope = parentScope
         self.members = {}
 
     def add(self, nameToken, node):
         name = nameToken.value
-        if name not in self.memebers.keys():
+        if name not in self.members:
             self.members[name] = node
             return
 
@@ -14,10 +15,11 @@ class Scope():
 
     def resolveName(self, nameToken):
         name = nameToken.value
-        if self.members[name]:
+        if name in self.members:
             return self.members[name]
 
         if self.parentScope:
             return self.parentScope.resolveName(nameToken)
 
         print(f'{self.filename}:{nameToken.lineNr}:error: undeclared variable: {name}')
+        return None

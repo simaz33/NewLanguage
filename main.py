@@ -20,6 +20,9 @@ def main():
     printer = ASTPrinter()
     printer.print('root', root)
 
+    rootScope = Scope(None)
+    root.resolveNames(rootScope)
+
 if __name__ == '__main__':
     main()
     

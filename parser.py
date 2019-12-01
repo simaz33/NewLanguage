@@ -1,9 +1,4 @@
-from ast import (Node, Param, Program, StmtBlock, Decl,
-    DeclFn, StmtVarDecl, Expr, ExprBinary, ExprUnary, ExprFnCall,  
-    ExprLit, ExprVar, Stmt, StmtIf, StmtBranch, StmtFor, StmtExpr,
-    StmtWhile, StmtInput, StmtOutput, StmtBreak, StmtContinue,
-    StmtReturn, Type, TypePrim)
-
+import ast
 
 class Parser():
     def __init__(self, tokens, filename):
@@ -41,7 +36,7 @@ class Parser():
         while not self.accept('EOF'):
             decls.append(self.parseDecl())
 
-        return Program(decls)
+        return ast.Program(decls)
 
     def parseDeclFn(self):
         declType = self.parseType()
@@ -51,7 +46,7 @@ class Parser():
         self.expect('PAREN_CLOSE') 
         body = self.parseStmtBlock()  
 
-        return DeclFn(declType, name, params, body)
+        return ast.DeclFn(declType, name, params, body)
 
     def parseExprs(self):
         exprs = []
@@ -71,7 +66,7 @@ class Parser():
 
         while True:
             if self.accept('ASSIGN_OP'):
-                result = ExprBinary('ASSIGN', result, self.parseExprOr())
+                result = ast.ExprBinary('ASSIGN', result, self.parseExprOr())
 
             else:
                 break
@@ -83,7 +78,7 @@ class Parser():
 
         while True:
             if self.accept('OR_OP'):
-                result = ExprBinary('OR', result, self.parseExprAnd())
+                result = ast.ExprBinLogic('OR', result, self.parseExprAnd())
 
             else:
                 break
@@ -95,7 +90,7 @@ class Parser():
 
         while True:
             if self.accept('AND_OP'):
-                result = ExprBinary('AND', result, self.parseExprEqual())
+                result = ast.ExprBinLogic('AND', result, self.parseExprEqual())
 
             else:
                 break
@@ -107,7 +102,7 @@ class Parser():
 
         while True:
             if self.accept('EQ_OP'):
-                result = ExprBinary('EQUAL', result, self.parseExprComp())
+                result = ast.ExprBinEquality('EQUAL', result, self.parseExprComp())
 
             else:
                 break
@@ -119,16 +114,16 @@ class Parser():
 
         while True:
             if self.accept('COMP_L'):
-                result = ExprBinary('CMP_L', result, self.parseExprAdd())
+                result = ast.ExprBinComparison('CMP_L', result, self.parseExprAdd())
             
             elif self.accept('COMP_LE'):
-                result = ExprBinary('CMP_LE', result, self.parseExprAdd())
+                result = ast.ExprBinComparison('CMP_LE', result, self.parseExprAdd())
 
             elif self.accept('COMP_G'):
-                result = ExprBinary('CMP_G', result, self.parseExprAdd())
+                result = ast.ExprBinComparison('CMP_G', result, self.parseExprAdd())
 
             elif self.accept('COMP_GE'):
-                result = ExprBinary('CMP_GE', result, self.parseExprAdd())
+                result = ast.ExprBinComparison('CMP_GE', result, self.parseExprAdd())
             
             else:
                 break
@@ -140,10 +135,10 @@ class Parser():
 
         while True:
             if self.accept('ADD_OP'):
-                result = ExprBinary('ADD', result, self.parseExprMult())
+                result = ast.ExprBinArith('ADD', result, self.parseExprMult())
 
             elif self.accept('MINUS_OP'):
-                result = ExprBinary('SUB', result, self.parseExprMult())
+                result = ast.ExprBinArith('SUB', result, self.parseExprMult())
 
             else:
                 break
@@ -155,10 +150,10 @@ class Parser():
 
         while True:
             if self.accept('MULT_OP'):
-                result = ExprBinary('MULT', result, self.parseExprUnary())
+                result = ast.ExprBinArith('MULT', result, self.parseExprUnary())
 
             elif self.accept('DIV_OP'):
-                result = ExprBinary('DIV', result, self.parseExprUnary())
+                result = ast.ExprBinArith('DIV', result, self.parseExprUnary())
 
             else:
                 break
@@ -170,7 +165,7 @@ class Parser():
 
         while True:
             if self.accept('NOT_OP'):
-                result = ExprUnary('NOT', self.parseExprPrimary())
+                result = ast.ExprUnary('NOT', self.parseExprPrimary())
 
             else:
                 break
@@ -213,27 +208,27 @@ class Parser():
     def parseExprFalse(self):
         lit = self.expect('FALSE_KW')
 
-        return ExprLit(lit)
+        return ast.ExprLit('BOOLEAN', lit)
 
     def parseExprTrue(self):
         lit = self.expect('TRUE_KW')
 
-        return ExprLit(lit)
+        return ast.ExprLit('BOOLEAN', lit)
 
     def parseExprStr(self):
         lit = self.expect('STR')
 
-        return ExprLit('STR', lit)
+        return ast.ExprLit('STR', lit)
 
     def parseExprFloat(self):
         lit = self.expect('FLOAT')
         
-        return ExprLit('FLOAT', lit)
+        return ast.ExprLit('FLOAT', lit)
 
     def parseExprInt(self):
         lit = self.expect('INT')
 
-        return ExprLit('INT', lit)
+        return ast.ExprLit('INT', lit)
 
     def parseExprVar(self):
         name = self.expect('IDENT')
@@ -243,13 +238,13 @@ class Parser():
 
         if self.tokenType() == 'INC':
             self.expect('INC')
-            return ExprUnary('INC', name)
+            return ast.ExprUnary('INC', name)
 
         if self.tokenType() == 'DEC':
             self.expect('DEC')
-            return ExprUnary('DEC', name)
+            return ast.ExprUnary('DEC', name)
         
-        return ExprVar(name)
+        return ast.ExprVar(name)
 
     def parseExprFnCall(self, name):
         args = []
@@ -257,13 +252,13 @@ class Parser():
         args = self.parseExprs()
         self.expect('PAREN_CLOSE')
 
-        return ExprFnCall(name, args)
+        return ast.ExprFnCall(name, args)
 
     def parseParam(self):
         paramType = self.parseType()
         name = self.expect('IDENT')
         
-        return Param(paramType, name)
+        return ast.Param(paramType, name)
 
     def parseParams(self):
         params = []
@@ -279,7 +274,10 @@ class Parser():
         return params
 
     def parseStmt(self):
-        if self.tokenType() == 'RET_KW':
+        if self.testTokens('IDENT', 'ASSIGN_OP'):
+            return self.parseStmtAssign()
+
+        elif self.tokenType() == 'RET_KW':
             return self.parseStmtReturn()
 
         elif self.tokenType() == 'IF_KW':
@@ -316,8 +314,8 @@ class Parser():
             return self.parseStmtVarDecl()
 
         else:
-            expr = self.parseExpr()
-            return StmtExpr(expr)
+            return self.parseStmtExpr()
+            
 
     def parseStmtBlock(self):
         stmts = []
@@ -326,19 +324,27 @@ class Parser():
 
         while not self.tokenType() == 'CURL_PAREN_CLOSE':
             stmt = self.parseStmt()
-
+            
             if stmt:
-                stmts.append(stmt)
+                if isinstance(stmt, list):
+                    [stmts.append(s) for s in stmt]
+                else:
+                    stmts.append(stmt)
 
             else:
                 break
 
         self.expect('CURL_PAREN_CLOSE')
 
-        return StmtBlock(stmts)
+        return ast.StmtBlock(stmts)
+
+    def parseStmtExpr(self):
+        expr = self.parseExpr()
+        
+        return ast.StmtExpr(expr)
 
     def parseStmtVarDecl(self):
-        vars = []
+        variables = []
         declType = self.parseType()
         name = self.expect('IDENT')
         value = None
@@ -346,38 +352,39 @@ class Parser():
         if self.accept('ASSIGN_OP'):
             value = self.parseExpr()
 
-        vars.append(StmtVarDecl(declType, name, value))
+        variables.append(ast.StmtVarDecl(declType, name, value))
 
         while self.accept('COMMA'):
-            vars.append(self.parseVars(declType))
+            variables.append(self.parseVars(declType))
 
-        return vars
+        return variables
 
     def parseVars(self, declType):
         name = self.expect('IDENT')
+        value = None
 
         if self.accept('ASSIGN_OP'):
             value = self.parseExpr()
 
-        return StmtVarDecl(declType, name, value)
+        return ast.StmtVarDecl(declType, name, value)
 
     def parseStmtBreak(self):
         breakKw = self.expect('BREAK_KW')
 
-        return StmtBreak(breakKw)
+        return ast.StmtBreak(breakKw)
 
     def parseStmtContinue(self):
         continueKw = self.expect('CONTINUE_KW')
 
-        return StmtContinue(continueKw)
+        return ast.StmtContinue(continueKw)
 
     def parseStmtOutput(self):
         outputKw = self.expect('OUTPUT_KW')
         self.expect('PAREN_OPEN')
-        result = self.parseExprs()
+        results = self.parseExprs()
         self.expect('PAREN_CLOSE')
 
-        return StmtOutput(outputKw, result)
+        return ast.StmtOutput(outputKw, results)
 
     def parseStmtInput(self):
         inputKw = self.expect('INPUT_KW')
@@ -385,14 +392,14 @@ class Parser():
         args = self.parseArgs()
         self.expect('PAREN_CLOSE')
 
-        return StmtInput(inputKw, args)
+        return ast.StmtInput(inputKw, args)
 
     def parseStmtWhile(self):
         self.expect('WHILE_KW')
         cond = self.parseExpr()
         body = self.parseStmtBlock()
 
-        return StmtWhile(cond, body)
+        return ast.StmtWhile(cond, body)
 
     def parseStmtFor(self):
         self.expect('FOR_KW')
@@ -406,14 +413,14 @@ class Parser():
     
         body = self.parseStmtBlock()
     
-        return StmtFor(decl, cond, final, body)
+        return ast.StmtFor(decl, cond, final, body)
 
     def parseStmtIf(self):
         branches = []
         self.expect('IF_KW')
         cond = self.parseExpr()
         body = self.parseStmtBlock()
-        branches.append(StmtBranch(cond, body))
+        branches.append(ast.StmtBranch(cond, body))
         elseStmt = None
 
         while self.accept('ELSEIF_KW'):
@@ -422,13 +429,13 @@ class Parser():
         if self.accept('ELSE_KW'):
             elseStmt = self.parseStmtElse()
 
-        return StmtIf(branches, elseStmt)
+        return ast.StmtIf(branches, elseStmt)
 
     def parseStmtElseIf(self):
         cond = self.parseExpr()
         body = self.parseStmtBlock()
 
-        return StmtBranch(cond, body)
+        return ast.StmtBranch(cond, body)
 
     def parseStmtElse(self):
        return self.parseStmtBlock()
@@ -437,26 +444,39 @@ class Parser():
         retKw = self.expect('RET_KW')
         value = self.parseExpr()
         
-        return StmtReturn(retKw, value)
+        return ast.StmtReturn(retKw, value)
+
+    def parseStmtAssign(self):
+        target = self.expect('IDENT')
+        self.expect('ASSIGN_OP')
+        value = self.parseExpr()
+        
+        return ast.StmtAssign(target, value)
 
     def parseType(self):
         if self.tokenType() == 'INT_KW':
-            return TypePrim(self.expect('INT_KW'), 'int')
+            return ast.TypePrim(self.expect('INT_KW'), 'int')
 
         elif self.tokenType() == 'FLOAT_KW': 
-            return TypePrim(self.expect('FLOAT_KW'), 'float')
+            return ast.TypePrim(self.expect('FLOAT_KW'), 'float')
 
         elif self.tokenType() == 'STRING_KW':
-            return TypePrim(self.expect('STRING_KW'), 'string')
+            return ast.TypePrim(self.expect('STRING_KW'), 'string')
         
         elif self.tokenType() == 'BOOLEAN_KW': 
-            return TypePrim(self.expect('BOOLEAN_KW'), 'boolena')
+            return ast.TypePrim(self.expect('BOOLEAN_KW'), 'boolean')
 
         elif self.tokenType() == 'VOID_KW': 
-            return TypePrim(self.expect('VOID_KW'), 'void')
+            return ast.TypePrim(self.expect('VOID_KW'), 'void')
 
         else:
             self.error('Invalid type declaration type: {}'.format(self.tokenType()))
+
+    def testTokens(self, tokenType1, tokenType2):
+        ok1 = self.tokens[self.offset + 0].type == tokenType1
+        ok2 = self.tokens[self.offset + 1].type == tokenType2
+
+        return ok1 and ok2
 
     def tokenType(self):
         return self.tokens[self.offset].type
