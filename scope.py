@@ -1,6 +1,5 @@
-import time
 class Scope():
-    def __init__(self, parentScope, filename = '??'):
+    def __init__(self, parentScope, filename):
         self.filename = filename
         self.parentScope = parentScope
         self.members = {}

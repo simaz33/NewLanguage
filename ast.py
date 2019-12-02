@@ -1,5 +1,6 @@
 from scope import Scope
 from checkTypes import *
+import sys
 
 class Node():
     parent = None
@@ -74,7 +75,7 @@ class StmtBlock(Node):
         p.print('stmts', self.stmts)
 
     def resolveNames(self, parentScope):
-        scope = Scope(parentScope)
+        scope = Scope(parentScope, sys.argv[1])
         for stmt in self.stmts:
             stmt.resolveNames(scope)
 
@@ -101,7 +102,7 @@ class DeclFn(Decl):
         p.print('body', self.body)
 
     def resolveNames(self, parentScope):
-        scope = Scope(parentScope)
+        scope = Scope(parentScope, sys.argv[1])
         for param in self.params:
             param.resolveNames(scope)
         
@@ -131,8 +132,6 @@ class ExprBinary(Expr):
     def __str__(self):
         return f'{self.__class__.__name__}({self.op})' 
 
-
-# ExprBinArith: TYPE + TYPE -> TYPE; is_arithmetic
 class ExprBinArith(ExprBinary):
     def checkTypes(self):
         leftType = self.left.checkTypes()
@@ -140,10 +139,9 @@ class ExprBinArith(ExprBinary):
         if leftType is not None and leftType.isArithmetic():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(None, f'cannot perform arithmetic operations with this type: {leftType}')
+            semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
         return leftType
 
-# ExprBinComparison: TYPE < TYPE -> BOOL; is_comparable
 class ExprBinComparison(ExprBinary):
     def checkTypes(self):
         leftType = self.left.checkTypes()
@@ -151,11 +149,9 @@ class ExprBinComparison(ExprBinary):
         if leftType is not None and leftType.isComparable():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(None, f'cannot perform arithmetic operations with this type: {leftType}')
-        token = Token()
-        return TypePrim('VOID_KW', 'void')
+            semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
+        return TypePrim('BOOLEAN_KW', 'boolean')
 
-# ExprBinEquality: TYPE == TYPE -> BOOL; has_value
 class ExprBinEquality(ExprBinary):
     def checkTypes(self):
         leftType = self.left.checkTypes()
@@ -163,10 +159,9 @@ class ExprBinEquality(ExprBinary):
         if leftType is not None and leftType.hasValue():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(None, f'cannot perform arithmetic operations with this type: {leftType}')
-        return TypePrim('VOID_KW', 'void')
+            semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
+        return TypePrim('BOOLEAN_KW', 'boolean')
 
-# ExprBinLogic: BOOL || BOOL -> BOOL
 class ExprBinLogic(ExprBinary):
     def checkTypes(self):
         leftType = self.left.checkTypes()
@@ -186,6 +181,14 @@ class ExprUnary(Expr):
 
     def resolveNames(self, scope):
         self.right.resolveNames(scope)
+
+    def checkTypes(self):
+        rightType = self.right.checkTypes()
+        if rightType is not None and rightType.isArithmetic():
+            pass
+        else:
+            semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
+        return rightType
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.op})'
@@ -212,6 +215,12 @@ class ExprLit(Expr):
         elif self.lit.type == 'STR':
             return TypePrim('STRING_KW', 'string')
 
+        elif self.lit.type == 'TRUE_KW':
+            return TypePrim('BOOLEAN_KW', 'boolean')
+
+        elif self.lit.type == 'FALSE_KW':
+            return TypePrim('BOOLEAN_KW', 'boolean')        
+
         else:
             print('this type does not exist')
             exit(1)
@@ -227,7 +236,7 @@ class ExprVar(Expr):
         self.targetNode = scope.resolveName(self.name)
 
     def checkTypes(self):
-        if self.targetNode is not None:
+        if self.targetNode:
             return self.targetNode.type
 
 class ExprFnCall(Expr):
@@ -240,20 +249,20 @@ class ExprFnCall(Expr):
         p.print('args', self.args)
 
     def resolveNames(self, scope):
-        self.targetNode = scope.resolveName(self.name) 
+        self.targetNode = scope.resolveName(self.name)
         [arg.resolveNames(scope) for arg in self.args if arg is not None]
   
     def checkTypes(self):
-        argTypes = [arg.checkTypes() for arg in self.args]
+        argTypes = [arg.checkTypes() for arg in self.args if arg is not None]
         if not self.targetNode:
             return
         elif not isinstance(self.targetNode, DeclFn):
             semanticError(self.name, 'the call target is not a function')
             return
 
-        paramTypes = [param.type for param in self.targetNode]
+        paramTypes = [param.type for param in self.targetNode.params]
         if len(paramTypes) != len(argTypes):
-            semanticError(self.targetNode, f'invalid argument count: expected {len(paramTypes)}, got {len(argTypes)}')
+            semanticError(self.name, f'invalid argument count: expected {len(paramTypes)}, got {len(argTypes)}')
 
         paramCount = min(len(paramTypes), len(argTypes))
         for i in range(paramCount):
@@ -278,6 +287,8 @@ class StmtVarDecl(Stmt):
 
     def resolveNames(self, scope):
         scope.add(self.name, self)
+        if self.value:
+            self.value.resolveNames(scope)
 
     def checkTypes(self):
         if self.value:
@@ -300,7 +311,8 @@ class StmtAssign(Stmt):
 
     def checkTypes(self):
         valueType = self.value.checkTypes()
-        unifyTypes(self.targetNode.type, valueType)
+        if None in [valueType, self.targetNode]:
+            unifyTypes(self.targetNode.type, valueType)
 
 class StmtIf(Stmt):
     def __init__(self, branches, elseStmt):
@@ -316,6 +328,12 @@ class StmtIf(Stmt):
         if self.elseStmt:
             self.elseStmt.resolveNames(scope) 
 
+    def checkTypes(self):
+        [branch.checkTypes() for branch in self.branches]
+        if self.elseStmt:
+            self.elseStmt.checkTypes() 
+
+
 class StmtBranch(Node):
     def __init__(self, cond, body):
         self.cond = cond
@@ -329,6 +347,11 @@ class StmtBranch(Node):
         self.cond.resolveNames(scope)
         self.body.resolveNames(scope)
 
+    def checkTypes(self):
+        condType = self.cond.checkTypes()
+        unifyTypes(TypePrim('BOOLEAN_KW', 'boolean'), condType)
+        self.body.checkTypes()
+
 class StmtElse(Stmt):
     def __init__(self, body):
         self.body = body
@@ -338,6 +361,9 @@ class StmtElse(Stmt):
 
     def resolveNames(self, scope):
         self.body.resolveNames(scope)
+
+    def checkTypes(self):
+        self.body.checkTypes()
 
 class StmtLoop(Stmt):
     pass
@@ -360,6 +386,13 @@ class StmtFor(StmtLoop):
         self.cond.resolveNames(scope)
         self.final.resolveNames(scope)
         self.body.resolveNames(scope)
+
+    def checkTypes(self):
+        self.decl.checkTypes()
+        condType = self.cond.checkTypes()
+        unifyTypes(TypePrim('BOOLEAN_KW', 'boolean'), condType)
+        #self.final.checkTypes()
+        self.body.checkTypes()
 
 class StmtWhile(StmtLoop):
     def __init__(self, cond, body):
@@ -446,6 +479,9 @@ class StmtContinue(Stmt):
 
         if not self.targetNode:
             print(f'filename:{self.breakKw.lineNr}:error: break is not in loop')
+
+    def checkTypes(self):
+        pass
 
 class StmtReturn(Stmt):
     def __init__(self, retKw, value):

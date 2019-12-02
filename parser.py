@@ -238,11 +238,13 @@ class Parser():
 
         if self.tokenType() == 'INC':
             self.expect('INC')
-            return ast.ExprUnary('INC', name)
+            return ast.ExprUnary('INC', ast.ExprVar(name))
+            #return ast.ExprUnary('INC', ast.ExprVar(name))
 
         if self.tokenType() == 'DEC':
             self.expect('DEC')
-            return ast.ExprUnary('DEC', name)
+            return ast.ExprUnary('DEC', ast.ExprVar(name))
+            #return ast.ExprUnary('DEC', name)
         
         return ast.ExprVar(name)
 

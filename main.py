@@ -17,11 +17,12 @@ def main():
     parser = Parser(lexer.tokens, filename)
     root = parser.parseProgram()
 
+    rootScope = Scope(None, filename)
+    root.resolveNames(rootScope)
+    root.checkTypes()
+
     printer = ASTPrinter()
     printer.print('root', root)
-
-    rootScope = Scope(None)
-    root.resolveNames(rootScope)
 
 if __name__ == '__main__':
     main()
