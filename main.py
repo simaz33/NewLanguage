@@ -1,28 +1,38 @@
 #!/usr/bin/python3
 
-import sys
+import globalVars as gv
 from parser import Parser
 from lexer import Lexer
 from astPrinter import ASTPrinter
 from scope import Scope
+from genCode import CodeWriter
 
 def main():
-    filename = sys.argv[1]
-    input = open(filename, 'r').read()
-    lexer = Lexer(filename, input)
+    content = ''
+    with open(gv.filename, 'r') as f:
+        content = f.read()
+
+    lexer = Lexer(gv.filename, content)
     lexer.lexAll()
-    lexer.dumpTokens()
+    #lexer.dumpTokens()
     lexer.displayError()
 
-    parser = Parser(lexer.tokens, filename)
+    parser = Parser(lexer.tokens, gv.filename)
     root = parser.parseProgram()
 
-    rootScope = Scope(None, filename)
-    root.resolveNames(rootScope)
-    root.checkTypes()
+    rootScope = Scope(None, gv.filename)
+    scopeErrors = root.resolveNames(rootScope)
+    typeErrors = root.checkTypes()
 
-    printer = ASTPrinter()
-    printer.print('root', root)
+    if gv.errors:
+        exit(1)
+    
+    writer = CodeWriter()
+    root.genCode(writer)
+    writer.dumpCode()
+
+    #printer = ASTPrinter()
+    #printer.print('root', root)
 
 if __name__ == '__main__':
     main()

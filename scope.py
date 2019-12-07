@@ -20,5 +20,5 @@ class Scope():
         if self.parentScope:
             return self.parentScope.resolveName(nameToken)
 
-        print(f'{self.filename}:{nameToken.lineNr}:error: undeclared variable: {name}')
+        print(f'Error:{self.filename}:{nameToken.lineNr}: undeclared variable: {name}')
         return None

@@ -471,7 +471,7 @@ class Lexer():
 
     def setError(self, msg):
         if (msg):
-            self.error = '\nError in file:{}:{}:{}:{}'.format(self.filename, self.lineNr, self.columnNr, msg)
+            self.error = 'Error{}:{}:{}'.format(self.filename, self.lineNr, msg)
 
         self.running = False      
 

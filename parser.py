@@ -19,7 +19,6 @@ class Parser():
         if currentToken.type == tokenType:
             self.offset += 1
             return currentToken
-
         else:
             self.error('Expected {}, got {}'.format(tokenType, currentToken.type))
 
@@ -63,11 +62,13 @@ class Parser():
 
     def parseExprAssign(self):
         result = self.parseExprOr()
+        if not result:
+            self.error('Invalid expression')
 
         while True:
-            if self.accept('ASSIGN_OP'):
-                result = ast.ExprBinary('ASSIGN', result, self.parseExprOr())
-
+            token = self.accept('ASSIGN_OP')
+            if token:
+                result = ast.StmtAssign(token, result, self.parseExprOr())
             else:
                 break
         
@@ -75,11 +76,13 @@ class Parser():
 
     def parseExprOr(self):
         result = self.parseExprAnd()
-
+        if not result:
+            self.error('Invalid expression')
+            
         while True:
-            if self.accept('OR_OP'):
-                result = ast.ExprBinLogic('OR', result, self.parseExprAnd())
-
+            token = self.accept('OR_OP')
+            if token:
+                result = ast.ExprBinLogic(token, result, self.parseExprAnd())
             else:
                 break
 
@@ -87,11 +90,13 @@ class Parser():
 
     def parseExprAnd(self):
         result = self.parseExprEqual()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('AND_OP'):
-                result = ast.ExprBinLogic('AND', result, self.parseExprEqual())
-
+            token = self.accept('AND_OP')
+            if token:
+                result = ast.ExprBinLogic(token, result, self.parseExprEqual())
             else:
                 break
 
@@ -99,11 +104,18 @@ class Parser():
 
     def parseExprEqual(self):
         result = self.parseExprComp()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('EQ_OP'):
-                result = ast.ExprBinEquality('EQUAL', result, self.parseExprComp())
+            token = self.accept('EQ_OP')
+            if token:
+                result = ast.ExprBinEquality(token, result, self.parseExprComp())
+                continue
 
+            token = self.accept('NOT_EQ_OP')
+            if token:
+                result = ast.ExprBinEquality(token, result, self.parseExprComp())
             else:
                 break
 
@@ -111,20 +123,28 @@ class Parser():
 
     def parseExprComp(self):
         result = self.parseExprAdd()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('COMP_L'):
-                result = ast.ExprBinComparison('CMP_L', result, self.parseExprAdd())
+            token = self.accept('COMP_L') 
+            if token:
+                result = ast.ExprBinComparison(token, result, self.parseExprAdd())
+                continue
             
-            elif self.accept('COMP_LE'):
-                result = ast.ExprBinComparison('CMP_LE', result, self.parseExprAdd())
-
-            elif self.accept('COMP_G'):
-                result = ast.ExprBinComparison('CMP_G', result, self.parseExprAdd())
-
-            elif self.accept('COMP_GE'):
-                result = ast.ExprBinComparison('CMP_GE', result, self.parseExprAdd())
+            token = self.accept('COMP_LE') 
+            if token:
+                result = ast.ExprBinComparison(token, result, self.parseExprAdd())
+                continue
             
+            token = self.accept('COMP_G') 
+            if token:
+                result = ast.ExprBinComparison(token, result, self.parseExprAdd())
+                continue
+
+            token = self.accept('COMP_GE')
+            if token:
+                result = ast.ExprBinComparison(token, result, self.parseExprAdd())
             else:
                 break
 
@@ -132,14 +152,18 @@ class Parser():
 
     def parseExprAdd(self):
         result = self.parseExprMult()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('ADD_OP'):
-                result = ast.ExprBinArith('ADD', result, self.parseExprMult())
-
-            elif self.accept('MINUS_OP'):
-                result = ast.ExprBinArith('SUB', result, self.parseExprMult())
-
+            token = self.accept('ADD_OP') 
+            if token:
+                result = ast.ExprBinArith(token, result, self.parseExprMult())
+                continue
+            
+            token = self.accept('MINUS_OP')
+            if token:
+                result = ast.ExprBinArith(token, result, self.parseExprMult())
             else:
                 break
 
@@ -147,14 +171,18 @@ class Parser():
 
     def parseExprMult(self):
         result = self.parseExprUnary()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('MULT_OP'):
-                result = ast.ExprBinArith('MULT', result, self.parseExprUnary())
-
-            elif self.accept('DIV_OP'):
-                result = ast.ExprBinArith('DIV', result, self.parseExprUnary())
-
+            token = self.accept('MULT_OP') 
+            if token:
+                result = ast.ExprBinArith(token, result, self.parseExprUnary())
+                continue
+            
+            token = self.accept('DIV_OP')
+            if token:
+                result = ast.ExprBinArith(token, result, self.parseExprUnary())
             else:
                 break
 
@@ -162,11 +190,13 @@ class Parser():
 
     def parseExprUnary(self):
         result = self.parseExprPrimary()
-
+        if not result:
+            self.error('Invalid expression')
+        
         while True:
-            if self.accept('NOT_OP'):
-                result = ast.ExprUnary('NOT', self.parseExprPrimary())
-
+            token = self.accept('NOT_OP')
+            if token:
+                result = ast.ExprUnary(token, self.parseExprPrimary())
             else:
                 break
 
@@ -178,7 +208,7 @@ class Parser():
 
         elif self.tokenType() == 'INT':
             return self.parseExprInt()
-        
+
         elif self.tokenType() == 'FLOAT':
             return self.parseExprFloat()
 
@@ -204,7 +234,7 @@ class Parser():
         self.expect('PAREN_CLOSE')
         
         return result
-
+        
     def parseExprFalse(self):
         lit = self.expect('FALSE_KW')
 
@@ -239,12 +269,13 @@ class Parser():
         if self.tokenType() == 'INC':
             self.expect('INC')
             return ast.ExprUnary('INC', ast.ExprVar(name))
-            #return ast.ExprUnary('INC', ast.ExprVar(name))
 
         if self.tokenType() == 'DEC':
             self.expect('DEC')
             return ast.ExprUnary('DEC', ast.ExprVar(name))
-            #return ast.ExprUnary('DEC', name)
+        
+        if self.tokenType() == 'IDENT':
+            self.error(f'Unexpected token {self.tokenType()}')
         
         return ast.ExprVar(name)
 
@@ -444,16 +475,19 @@ class Parser():
 
     def parseStmtReturn(self):
         retKw = self.expect('RET_KW')
-        value = self.parseExpr()
+        if self.accept('SEMICOLON'):
+            value = None
+        else:
+            value = self.parseExpr()
         
         return ast.StmtReturn(retKw, value)
 
     def parseStmtAssign(self):
         target = self.expect('IDENT')
-        self.expect('ASSIGN_OP')
+        op = self.expect('ASSIGN_OP')
         value = self.parseExpr()
         
-        return ast.StmtAssign(target, value)
+        return ast.StmtAssign(op, target, value)
 
     def parseType(self):
         if self.tokenType() == 'INT_KW':
@@ -472,7 +506,7 @@ class Parser():
             return ast.TypePrim(self.expect('VOID_KW'), 'void')
 
         else:
-            self.error('Invalid type declaration type: {}'.format(self.tokenType()))
+            self.error('Invalid declaration type: {}'.format(self.tokenType()))
 
     def testTokens(self, tokenType1, tokenType2):
         ok1 = self.tokens[self.offset + 0].type == tokenType1
