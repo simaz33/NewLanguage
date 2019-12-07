@@ -267,12 +267,12 @@ class Parser():
             return self.parseExprFnCall(name)
 
         if self.tokenType() == 'INC':
-            self.expect('INC')
-            return ast.ExprUnary('INC', ast.ExprVar(name))
+            token = self.expect('INC')
+            return ast.ExprUnary(token, ast.ExprVar(name))
 
         if self.tokenType() == 'DEC':
-            self.expect('DEC')
-            return ast.ExprUnary('DEC', ast.ExprVar(name))
+            token = self.expect('DEC')
+            return ast.ExprUnary(token, ast.ExprVar(name))
         
         if self.tokenType() == 'IDENT':
             self.error(f'Unexpected token {self.tokenType()}')
