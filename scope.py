@@ -1,3 +1,5 @@
+import globalVars as gv
+
 class Scope():
     def __init__(self, parentScope, filename):
         self.filename = filename
@@ -11,6 +13,7 @@ class Scope():
             return
 
         print(f'{self.filename}:{nameToken.lineNr}:duplicate variable: {name}')
+        gv.errors = True
 
     def resolveName(self, nameToken):
         name = nameToken.value
@@ -21,4 +24,5 @@ class Scope():
             return self.parentScope.resolveName(nameToken)
 
         print(f'Error:{self.filename}:{nameToken.lineNr}: undeclared variable: {name}')
+        gv.errors = True
         return None

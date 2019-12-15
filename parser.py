@@ -252,7 +252,7 @@ class Parser():
 
     def parseExprFloat(self):
         lit = self.expect('FLOAT')
-        
+
         return ast.ExprLit('FLOAT', lit)
 
     def parseExprInt(self):
@@ -429,7 +429,9 @@ class Parser():
 
     def parseStmtWhile(self):
         self.expect('WHILE_KW')
+        self.expect('PAREN_OPEN')
         cond = self.parseExpr()
+        self.expect('PAREN_CLOSE')
         body = self.parseStmtBlock()
 
         return ast.StmtWhile(cond, body)
@@ -451,7 +453,9 @@ class Parser():
     def parseStmtIf(self):
         branches = []
         self.expect('IF_KW')
+        self.expect('PAREN_OPEN')
         cond = self.parseExpr()
+        self.expect('PAREN_CLOSE')
         body = self.parseStmtBlock()
         branches.append(ast.StmtBranch(cond, body))
         elseStmt = None
@@ -465,7 +469,9 @@ class Parser():
         return ast.StmtIf(branches, elseStmt)
 
     def parseStmtElseIf(self):
+        self.expect('PAREN_OPEN')
         cond = self.parseExpr()
+        self.expect('PAREN_CLOSE')
         body = self.parseStmtBlock()
 
         return ast.StmtBranch(cond, body)

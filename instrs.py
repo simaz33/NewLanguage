@@ -13,7 +13,7 @@ def addInstr(opcode, name, numOps):
 # Arithmetic instructions
 addInstr(0x10, 'I_INT_ADD', 0)
 addInstr(0x11, 'I_INT_SUB', 0)
-addInstr(0x12, 'I_INT_MUL', 0)
+addInstr(0x12, 'I_INT_MULT', 0)
 addInstr(0x13, 'I_INT_DIV', 0)
 addInstr(0x14, 'I_INT_INC', 0)
 addInstr(0x15, 'I_INT_DEC', 0)
@@ -39,6 +39,9 @@ addInstr(0x30, 'I_GET_L', 1)
 addInstr(0x31, 'I_SET_L', 1)
 addInstr(0x32, 'I_POP', 0)
 addInstr(0x33, 'I_INT_PUSH', 1)
+addInstr(0x34, 'I_FLOAT_PUSH', 1)
+addInstr(0x35, 'I_BOOLEAN_PUSH', 1)
+addInstr(0x36, 'I_ALLOC', 1)
 
 # Control instructions
 addInstr(0x40, 'I_BR', 1)
@@ -47,3 +50,4 @@ addInstr(0x42, 'I_RET', 0)
 addInstr(0x43, 'I_RET_V', 0)
 addInstr(0x44, 'I_CALL_BEGIN', 0)
 addInstr(0x45, 'I_CALL', 2)
+addInstr(0x46, 'I_EXIT', 0)

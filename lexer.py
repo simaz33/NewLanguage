@@ -227,6 +227,10 @@ class Lexer():
             self.currentChar == '_'):
             self.setError('invalid character found in prefix')
 
+        elif self.currentChar == '.':
+            self.state = 'FLOAT'
+            self.add()
+
         elif self.currentChar.isdigit():
             self.state = 'INT'
             self.add()

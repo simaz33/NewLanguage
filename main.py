@@ -6,6 +6,7 @@ from lexer import Lexer
 from astPrinter import ASTPrinter
 from scope import Scope
 from genCode import CodeWriter
+from vm import VM
 
 def main():
     content = ''
@@ -26,10 +27,13 @@ def main():
 
     if gv.errors:
         exit(1)
-    
+        
     writer = CodeWriter()
     root.genCode(writer)
     writer.dumpCode()
+
+    vm = VM(writer.code)
+    vm.exec()
 
     #printer = ASTPrinter()
     #printer.print('root', root)

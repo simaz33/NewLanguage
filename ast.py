@@ -11,7 +11,7 @@ class Node():
         pass
     
     def printNode(self, p):
-        print('PrintNode not implemented for', self.__name__)
+        print('printNode() not implemented for', self.__name__)
         exit(1)
 
     def addChildren(self, *children):
@@ -59,34 +59,25 @@ class Program(Node):
     def __init__(self, decls):
         self.addChildren(*decls)
         self.decls = decls
-        self.mainExist = False
+        self.mainLabel = None
 
     def printNode(self, p):
         p.print('decls', self.decls)
 
     def resolveNames(self, scope):
         [scope.add(decl.name, decl) for decl in self.decls]
-        self.checkMain()
         [decl.resolveNames(scope) for decl in self.decls]
+
+        if not self.mainLabel:
+            semanticError(None, 'Main function does not exist')
 
     def checkTypes(self):
         [decl.checkTypes() for decl in self.decls if decl]
 
-    def checkMain(self):
-        if not self.mainExist:
-            for decl in self.decls:
-                if isinstance(decl, DeclFn) and decl.name.value == 'main':
-                    unifyTypes(TypePrim(Token('INT_KW', '', ''), 'int'), decl.type)
-                    if len(decl.params) == 0:
-                        self.mainExist = True
-                    else:
-                        semanticError(decl.name, f'Invalid arg count: expected 0 got {len(decl.params)}')
-                    break
-                        
-            if not self.mainExist:
-                semanticError(None, 'Main function does not exist')
-
     def genCode(self, w):
+        w.write('I_CALL_BEGIN')
+        w.write('I_CALL', self.mainLabel, 0)
+        w.write('I_EXIT')
         [decl.genCode(w) for decl in self.decls]
 
 class StmtBlock(Node):
@@ -128,18 +119,27 @@ class DeclFn(Decl):
         p.print('body', self.body)
 
     def resolveNames(self, parentScope):
+        if self.name.value == 'main':
+            unifyTypes(TypePrim(Token('INT_KW', '', self.type.token.lineNr), 'int'), self.type)
+            if len(self.params) == 0:
+                program = self.findAncestor(Program)
+                program.mainLabel = self.startLabel
+            
         gv.stackSlotIndex = 0
         scope = Scope(parentScope, gv.filename)
         for param in self.params:
             param.resolveNames(scope)
         
         self.body.resolveNames(scope)
+        self.numLocals = gv.stackSlotIndex
 
     def checkTypes(self):
         self.body.checkTypes()
 
     def genCode(self, w):
         w.placeLabel(self.startLabel)
+        if self.numLocals > 0:
+            w.write('I_ALLOC', self.numLocals)
         self.body.genCode(w)
         w.write('I_RET')
 
@@ -165,11 +165,11 @@ class ExprBinary(Expr):
     def genCode(self, w):
         self.left.genCode(w)
         self.right.genCode(w)
-        op = self.op.type        
+        op = self.op.type
 
         if op == 'ADD_OP':
             w.write('I_INT_ADD')
-        elif op == 'SUB_OP':
+        elif op == 'MINUS_OP':
             w.write('I_INT_SUB')
         elif op == 'MULT_OP':
             w.write('I_INT_MULT')
@@ -188,7 +188,8 @@ class ExprBinary(Expr):
         elif op == 'NOT_EQ':
             w.write('I_NOT_EQ')
         else:
-            raise f'invalid binary operation: {op}'
+            print(f'invalid binary operation: {op}')
+            exit(1)
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.op.type})' 
@@ -252,10 +253,11 @@ class ExprUnary(Expr):
 
     def checkTypes(self):
         rightType = self.right.checkTypes()
-        if rightType and rightType.isArithmetic():
-            pass
-        else:
-            semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
+        if rightType:
+            if rightType.isArithmetic():
+                pass 
+            else:
+                semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
         return rightType
 
     def genCode(self, w):
@@ -269,7 +271,8 @@ class ExprUnary(Expr):
         elif op == 'NOT_OP':
             w.write('I_INT_NOT')
         else:
-            raise f'invalid unary operation: {op}'
+            print(f'invalid unary operation: {op}')
+            exit(1)
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.op.type})'
@@ -317,11 +320,12 @@ class ExprLit(Expr):
         elif litType == 'STR':
             w.write('I_STR_PUSH', self.lit.value)
         elif litType == 'TRUE_KW':
-            w.write('I_BOOLEAN_PUSH', 'true')
+            w.write('I_BOOLEAN_PUSH', 1)
         elif litType == 'FALSE_KW':
-            w.write('I_BOOLEAN_PUSH', 'false')
+            w.write('I_BOOLEAN_PUSH', 0)
         else:
-            raise 'unknown literal type'
+            print('unknown literal type')
+            exit(1)
 
 class ExprVar(Expr):
     def __init__(self, name):
@@ -345,7 +349,8 @@ class ExprVar(Expr):
         elif hasattr(self.targetNode, 'globalSlot'):
             w.write('I_GET_G', self.targetNode.globalSlot)
         else:
-            raise 'unknown variable'
+            print('unknown variable')
+            exit(1)
 
 class ExprFnCall(Expr):
     def __init__(self, name, args):
@@ -430,7 +435,7 @@ class StmtAssign(Stmt):
         p.print('value', self.value)
 
     def resolveNames(self, scope):
-        self.targetNode = scope.resolveName(self.target.name)
+        self.targetNode = scope.resolveName(self.target)
         self.value.resolveNames(scope)
 
     def checkTypes(self):
@@ -443,7 +448,8 @@ class StmtAssign(Stmt):
         if hasattr(self.targetNode, 'stackSlot'):
             w.write('I_SET_L', self.targetNode.stackSlot)
         else:
-            raise 'unknown assignment variable'
+            print('unknown assignment variable')
+            exit(1)
 
 class StmtIf(Stmt):
     def __init__(self, branches, elseStmt):
@@ -486,7 +492,7 @@ class StmtBranch(Stmt):
 
     def checkTypes(self):
         condType = self.cond.checkTypes()
-        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', ''), 'boolean'), condType)
+        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', condType.token.lineNr), 'boolean'), condType)
         self.body.checkTypes()
 
     def genCode(self, w):
@@ -510,7 +516,7 @@ class StmtElse(Stmt):
         self.body.checkTypes()
 
     def genCode(self, w):
-        endL = Label()
+        endL = gc.Label()
         self.body.genCode(w)
         w.placeLabel(endL)
 
@@ -539,7 +545,7 @@ class StmtFor(StmtLoop):
     def checkTypes(self):
         self.decl.checkTypes()
         condType = self.cond.checkTypes()
-        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', ''), 'boolean'), condType)
+        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', condType.token.lineNr), 'boolean'), condType)
         self.body.checkTypes()
 
 class StmtWhile(StmtLoop):
@@ -558,18 +564,18 @@ class StmtWhile(StmtLoop):
 
     def checkTypes(self):
         condType = self.cond.checkTypes()
-        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', ''), 'boolean'), condType)
+        unifyTypes(TypePrim(Token('BOOLEAN_KW', '', condType.token.lineNr), 'boolean'), condType)
         self.body.checkTypes()
 
     def genCode(self, w):
-        startL = Label()
-        endL = Label()
-        w.placeLabel(startL)
+        self.startL = gc.Label()
+        self.endL = gc.Label()
+        w.placeLabel(self.startL)
         self.cond.genCode(w)
-        w.write('I_BZ', endL)
+        w.write('I_BZ', self.endL)
         self.body.genCode(w)
-        w.write('I_BR', startL)
-        w.placeLabel(endL)
+        w.write('I_BR', self.startL)
+        w.placeLabel(self.endL)
 
 class StmtInput(Stmt):
     def __init__(self, inputKw, args):
@@ -595,7 +601,6 @@ class StmtOutput(Stmt):
     def resolveNames(self, scope):
         [result.resolveNames(scope) for result in self.results]
     
-
 class StmtBreak(Stmt):
     def __init__(self, breakKw):
         self.breakKw = breakKw
@@ -615,13 +620,13 @@ class StmtBreak(Stmt):
 
         if not self.targetNode:
             print(f'Error:{gv.filename}:{self.breakKw.lineNr}: break is not in loop')
-            globalVars.errors = True
+            gv.errors = True
 
     def checkTypes(self):
         pass
     
     def genCode(self, w):
-        w.write('I_BR', 'LOOP_END')
+        w.write('I_BR', self.targetNode.endL)
 
 class StmtContinue(Stmt):
     def __init__(self, continueKw):
@@ -632,7 +637,7 @@ class StmtContinue(Stmt):
     
     def resolveNames(self, scope):
         currNode = self.parent
-        self.targetNode = Nonestartstart
+        self.targetNode = None
         while currNode:
             if isinstance(currNode, StmtLoop):
                 self.targetNode = currNode
@@ -642,13 +647,13 @@ class StmtContinue(Stmt):
 
         if not self.targetNode:
             print(f'Error:{gv.filename}:{self.continueKw.lineNr}: continue is not in loop')
-            globalVars.errors = True
+            gv.errors = True
 
     def checkTypes(self):
         pass
 
     def genCode(self, w):
-        w.write('I_BR', 'LOOP_CONTINUE')
+        w.write('I_BR', self.targetNode.startL)
 
 class StmtReturn(Stmt):
     def __init__(self, retKw, value):

@@ -18,7 +18,7 @@ class CodeWriter():
             ops = []
             for i in range(tmpOffset, tmpOffset+instr.numOps):
                 ops.append(str(self.code[i]))
-            print('{:<2} | {:<2} | {:<16} {:<2}'.format(offset, opcode, instr.name, ','.join(ops)))
+            print('{:<2} | {:<2} | {:<16} {:<2}'.format(offset, opcode, instr.name, ', '.join(ops)))
             offset += 1 + instr.numOps
 
         print('RAW CODE:')
@@ -30,7 +30,8 @@ class CodeWriter():
     def write(self, instrName, *ops):
         instr = gv.instrsByName[instrName]
         if len(ops) != instr.numOps:
-            raise 'invalid instruction operand count'
+            print('invalid instruction operand count')
+            exit(1)
 
         self.code.append(instr.opcode)
         for op in ops:
