@@ -190,13 +190,13 @@ class Parser():
 
     def parseExprUnary(self):
         result = self.parseExprPrimary()
-        if not result:
-            self.error('Invalid expression')
+        #if not result:
+        #    self.error('Invalid expression!!!!')
         
         while True:
             token = self.accept('NOT_OP')
             if token:
-                result = ast.ExprUnary(token, self.parseExprPrimary())
+                result = ast.ExprUnarLogic(token, self.parseExprPrimary())
             else:
                 break
 
@@ -268,11 +268,11 @@ class Parser():
 
         if self.tokenType() == 'INC':
             token = self.expect('INC')
-            return ast.ExprUnary(token, ast.ExprVar(name))
+            return ast.ExprUnarArith(token, ast.ExprVar(name))
 
         if self.tokenType() == 'DEC':
             token = self.expect('DEC')
-            return ast.ExprUnary(token, ast.ExprVar(name))
+            return ast.ExprUnarArith(token, ast.ExprVar(name))
         
         if self.tokenType() == 'IDENT':
             self.error(f'Unexpected token {self.tokenType()}')

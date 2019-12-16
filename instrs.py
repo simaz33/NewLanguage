@@ -34,6 +34,10 @@ addInstr(0x27, 'I_FLOAT_GREATER_E', 0)
 addInstr(0x28, 'I_EQ', 0)
 addInstr(0x29, 'I_NOT_EQ', 0)
 
+# Logical instructions
+addInstr(0x50, 'I_OR', 0)
+addInstr(0x51, 'I_AND', 0)
+
 # Stack instructions
 addInstr(0x30, 'I_GET_L', 1)
 addInstr(0x31, 'I_SET_L', 1)
@@ -41,7 +45,8 @@ addInstr(0x32, 'I_POP', 0)
 addInstr(0x33, 'I_INT_PUSH', 1)
 addInstr(0x34, 'I_FLOAT_PUSH', 1)
 addInstr(0x35, 'I_BOOLEAN_PUSH', 1)
-addInstr(0x36, 'I_ALLOC', 1)
+addInstr(0x36, 'I_BOOLEAN_PUSH', 1)
+addInstr(0x37, 'I_ALLOC', 1)
 
 # Control instructions
 addInstr(0x40, 'I_BR', 1)

@@ -1,4 +1,5 @@
 STACK_LOCATION = 1024
+import globalVars as gv
 
 class VM():
     def __init__(self, code):
@@ -59,6 +60,14 @@ class VM():
             b = self.pop()
             a = self.pop()
             self.push(a / b)
+
+        elif opcode == 0x14:
+            a = self.pop()
+            self.push(a + 1)
+
+        elif opcode == 0x15:
+            a = self.pop()
+            self.push(a - 1)
         
         elif opcode == 0x20:
             b = self.pop()
@@ -90,6 +99,10 @@ class VM():
             a = self.pop()
             self.push(1 if a != b else 0)
 
+        elif opcode == 0x50:
+            a = self.pop()
+            self.push(1 if a == 0 else 0)
+
         elif opcode == 0x30:
             i = self.readImm()
             self.push(self.memory[self.fp + i])
@@ -105,12 +118,12 @@ class VM():
             self.push(self.readImm())
 
         elif opcode == 0x34: #I_FLOAT_PUSH
-            self.push(self.readImm())
+            self.push(gv.int2Float(self.readImm()))
 
         elif opcode == 0x35: #I_BOOLEAN_PUSH
             self.push(self.readImm())
 
-        elif opcode == 0x36: #I_ALLOC
+        elif opcode == 0x37: #I_ALLOC
             self.sp += self.readImm()
 
         elif opcode == 0x40: #I_BR

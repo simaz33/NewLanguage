@@ -240,42 +240,57 @@ class ExprBinLogic(ExprBinary):
         return TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean')
 
 class ExprUnary(Expr):
-    def __init__(self, op, right):
-        self.addChildren(right)
+    def __init__(self, op, target):
+        self.addChildren(target)
         self.op = op
-        self.right = right
+        self.target = target
 
     def printNode(self, p):
-        p.print('right', self.right)
+        p.print('target', self.target)
 
     def resolveNames(self, scope):
-        self.right.resolveNames(scope)
-
-    def checkTypes(self):
-        rightType = self.right.checkTypes()
-        if rightType:
-            if rightType.isArithmetic():
-                pass 
-            else:
-                semanticError(self.op, f'cannot perform arithmetic operations with this type: {leftType}')
-        return rightType
-
+        self.target.resolveNames(scope)
+        self.targetNode = scope.resolveName(self.target.name)
+        
     def genCode(self, w):
-        self.right.genCode(w)
+        self.target.genCode(w)
         op = self.op.type        
 
-        if op == 'INC':
-            w.write('I_INT_INC')
-        elif op == 'DEC':
-            w.write('I_INT_DEC')
+        if op in ['INC', 'DEC']:
+            if op == 'INC':
+                w.write('I_INT_INC')
+            else:
+                w.write('I_INT_DEC')
+
+            if hasattr(self.targetNode, 'stackSlot'):
+                w.write('I_SET_L', self.targetNode.stackSlot)
+            else:
+                print('unknown assignment variable')
+                exit(1)
         elif op == 'NOT_OP':
-            w.write('I_INT_NOT')
+            w.write('I_NOT')
         else:
             print(f'invalid unary operation: {op}')
             exit(1)
 
     def __str__(self):
         return f'{self.__class__.__name__}({self.op.type})'
+
+class ExprUnarArith(ExprUnary):
+    def checkTypes(self):
+        targetType = self.target.checkTypes()
+        if targetType:
+            if targetType.isArithmetic():
+                pass 
+            else:
+                semanticError(self.op, f'cannot perform arithmetic operations with this type: {targetType}')
+        return targetType
+
+class ExprUnarLogic(ExprUnary):
+    def checkTypes(self):
+        targetType = self.target.checkTypes()
+        unifyTypes(targetType, TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean'))
+        return TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean')
 
 class ExprLit(Expr):
     def __init__(self, type, lit):
@@ -316,7 +331,8 @@ class ExprLit(Expr):
         if litType == 'INT':
             w.write('I_INT_PUSH', self.lit.value)
         elif litType == 'FLOAT':
-            w.write('I_FLOAT_PUSH', self.lit.value)
+            value = gv.float2Int(self.lit.value)
+            w.write('I_FLOAT_PUSH', value)
         elif litType == 'STR':
             w.write('I_STR_PUSH', self.lit.value)
         elif litType == 'TRUE_KW':
