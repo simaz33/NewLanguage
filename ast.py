@@ -493,9 +493,12 @@ class StmtIf(Stmt):
             self.elseStmt.checkTypes() 
 
     def genCode(self, w):
-        [branch.genCode(w) for branch in self.branches]
+        self.finL = gc.Label()
+        for branch in self.branches:
+            branch.genCode(w, self.finL)
         if self.elseStmt:
             self.elseStmt.genCode(w)
+        w.placeLabel(self.finL)
 
 class StmtBranch(Stmt):
     def __init__(self, cond, body):
@@ -516,12 +519,13 @@ class StmtBranch(Stmt):
         unifyTypes(TypePrim(Token('BOOLEAN_KW', '', condType.token.lineNr), 'boolean'), condType)
         self.body.checkTypes()
 
-    def genCode(self, w):
-        endL = gc.Label()
+    def genCode(self, w, finL):
+        nextL = gc.Label()
         self.cond.genCode(w)
-        w.write('I_BZ', endL)
+        w.write('I_BZ', nextL)
         self.body.genCode(w)
-        w.placeLabel(endL)
+        w.write('I_BR', finL)
+        w.placeLabel(nextL)        
 
 class StmtElse(Stmt):
     def __init__(self, body):
