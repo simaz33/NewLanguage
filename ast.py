@@ -166,27 +166,32 @@ class ExprBinary(Expr):
         self.left.genCode(w)
         self.right.genCode(w)
         op = self.op.type
+        kind = self.left.checkTypes().kind.upper()
 
         if op == 'ADD_OP':
-            w.write('I_INT_ADD')
+            w.write(f'I_{kind}_ADD')
         elif op == 'MINUS_OP':
-            w.write('I_INT_SUB')
+            w.write(f'I_{kind}_SUB')
         elif op == 'MULT_OP':
-            w.write('I_INT_MULT')
+            w.write(f'I_{kind}_MULT')
         elif op == 'DIV_OP':
-            w.write('I_INT_DIV')
+            w.write(f'I_{kind}_DIV')
         elif op == 'COMP_L':
-            w.write('I_INT_LESS')
+            w.write(f'I_{kind}_LESS')
         elif op == 'COMP_LE':
-            w.write('I_INT__LESS_E')
+            w.write(f'I_{kind}_LESS_E')
         elif op == 'COMP_G':
-            w.write('I_INT_GREATER')
+            w.write(f'I_{kind}_GREATER')
         elif op == 'COMP_GE':
-            w.write('I_INT_GREATER_E')
+            w.write(f'I_{kind}_GREATER_E')
         elif op == 'EQ_OP':
             w.write('I_EQ')
-        elif op == 'NOT_EQ':
+        elif op == 'NOT_EQ_OP':
             w.write('I_NOT_EQ')
+        elif op == 'OR_OP':
+            w.write('I_OR')
+        elif op == 'AND_OP':
+            w.write('I_AND')    
         else:
             print(f'invalid binary operation: {op}')
             exit(1)
@@ -218,7 +223,7 @@ class ExprBinComparison(ExprBinary):
         if leftType and leftType.isComparable():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(self.op, f'cannot perform comparison operations with this type: {leftType}')
+            semanticError(self.op, f'cannot perform comparison operations with this type: {leftType.kind}')
         return TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean')
 
 class ExprBinEquality(ExprBinary):
@@ -228,7 +233,7 @@ class ExprBinEquality(ExprBinary):
         if leftType and leftType.hasValue():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(self.op, f'cannot perform comparison operations with this type: {leftType}')
+            semanticError(self.op, f'cannot perform comparison operations with this type: {leftType.kind}')
         return TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean')
 
 class ExprBinLogic(ExprBinary):
@@ -257,16 +262,15 @@ class ExprUnary(Expr):
         op = self.op.type        
 
         if op in ['INC', 'DEC']:
-            if op == 'INC':
-                w.write('I_INT_INC')
-            else:
-                w.write('I_INT_DEC')
+            w.write(f'I_{op}')
 
             if hasattr(self.targetNode, 'stackSlot'):
                 w.write('I_SET_L', self.targetNode.stackSlot)
+                w.write('I_GET_L', self.targetNode.stackSlot)
             else:
                 print('unknown assignment variable')
                 exit(1)
+
         elif op == 'NOT_OP':
             w.write('I_NOT')
         else:
@@ -331,10 +335,11 @@ class ExprLit(Expr):
         if litType == 'INT':
             w.write('I_INT_PUSH', self.lit.value)
         elif litType == 'FLOAT':
-            value = gv.float2Int(self.lit.value)
+            value = gv.bytes2Int(self.lit.value)
             w.write('I_FLOAT_PUSH', value)
         elif litType == 'STR':
-            w.write('I_STR_PUSH', self.lit.value)
+            value = gv.bytes2Int(self.lit.value)
+            w.write('I_STRING_PUSH', value)
         elif litType == 'TRUE_KW':
             w.write('I_BOOLEAN_PUSH', 1)
         elif litType == 'FALSE_KW':

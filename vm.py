@@ -40,116 +40,126 @@ class VM():
 
     def execOne(self):
         opcode = self.readImm()
+        instr = gv.instrsByOpcode[opcode].name
 
-        if opcode == 0x10:
+        if instr in ['I_INT_ADD', 'I_FLOAT_ADD']:
             b = self.pop()
             a = self.pop()
             self.push(a + b)
 
-        elif opcode == 0x11:
+        elif instr in ['I_INT_SUB', 'I_FLOAT_SUB']:
             b = self.pop()
             a = self.pop()
             self.push(a - b)
 
-        elif opcode == 0x12:
+        elif instr in ['I_INT_MULT', 'I_FLOAT_MULT']:
             b = self.pop()
             a = self.pop()
             self.push(a * b)
 
-        elif opcode == 0x13:
+        elif instr in ['I_INT_DIV', 'I_FLOAT_DIV']:
             b = self.pop()
             a = self.pop()
             self.push(a / b)
 
-        elif opcode == 0x14:
+        elif instr in ['I_INC']:
             a = self.pop()
             self.push(a + 1)
 
-        elif opcode == 0x15:
+        elif instr in ['I_DEC']:
             a = self.pop()
             self.push(a - 1)
         
-        elif opcode == 0x20:
+        elif instr in ['I_INT_LESS', 'I_FLOAT_LESS']:
             b = self.pop()
             a = self.pop()
             self.push(1 if a < b else 0)
 
-        elif opcode == 0x21:
+        elif instr in ['I_INT_LESS_E', 'I_FLOAT_LESS_E']:
             b = self.pop()
             a = self.pop()
             self.push(1 if a <= b else 0)
 
-        elif opcode == 0x22:
+        elif instr in ['I_INT_GREATER', 'I_FLOAT_GREATER']:
             b = self.pop()
             a = self.pop()
             self.push(1 if a > b else 0)
 
-        elif opcode == 0x23:
+        elif instr in ['I_INT_GREATER_E', 'I_FLOAT_GREATER_E']:
             b = self.pop()
             a = self.pop()
             self.push(1 if a >= b else 0)
 
-        elif opcode == 0x28:
+        elif instr == 'I_EQ':
             b = self.pop()
             a = self.pop()
             self.push(1 if a == b else 0)
 
-        elif opcode == 0x29:
+        elif instr == 'I_NOT_EQ':
             b = self.pop()
             a = self.pop()
             self.push(1 if a != b else 0)
 
-        elif opcode == 0x50:
+        elif instr == 'I_OR':
             a = self.pop()
-            self.push(1 if a == 0 else 0)
+            b = self.pop()
+            self.push(1 if a or b else 0)
 
-        elif opcode == 0x30:
+        elif instr == 'I_AND':
+            a = self.pop()
+            b = self.pop()
+            self.push(1 if a and b else 0)
+
+        elif instr == 'I_GET_L':
             i = self.readImm()
             self.push(self.memory[self.fp + i])
 
-        elif opcode == 0x31:
+        elif instr == 'I_SET_L':
             i = self.readImm()
             self.memory[self.fp + i] = self.pop()
 
-        elif opcode == 0x32:
+        elif instr == 'I_POP':
             self.sp -= 1
 
-        elif opcode == 0x33: #I_INT_PUSH
+        elif instr == 'I_INT_PUSH': 
             self.push(self.readImm())
 
-        elif opcode == 0x34: #I_FLOAT_PUSH
+        elif instr == 'I_FLOAT_PUSH': 
             self.push(gv.int2Float(self.readImm()))
 
-        elif opcode == 0x35: #I_BOOLEAN_PUSH
+        elif instr == 'I_STRING_PUSH': 
+            self.push(gv.int2Str(self.readImm()))
+
+        elif instr == 'I_BOOLEAN_PUSH': 
             self.push(self.readImm())
 
-        elif opcode == 0x37: #I_ALLOC
+        elif instr == 'I_ALLOC': 
             self.sp += self.readImm()
 
-        elif opcode == 0x40: #I_BR
+        elif instr == 'I_BR': 
             i = self.readImm()
             self.ip = i
 
-        elif opcode == 0x41: #I_BZ
+        elif instr == 'I_BZ':
             i = self.readImm()
             if self.pop() == 0:
                 self.ip = i 
             
-        elif opcode == 0x42:
+        elif instr == 'I_RET':
             self.execRet(0)
 
-        elif opcode == 0x43:
+        elif instr == 'I_RET_V':
             self.execRet(self.pop())
 
-        elif opcode == 0x44:
+        elif instr == 'I_CALL_BEGIN':
             self.push(0)
             self.push(0)
             self.push(0)
         
-        elif opcode == 0x45:
+        elif instr == 'I_CALL':
             self.execCall(self.readImm(), self.readImm())
 
-        elif opcode == 0x46:
+        elif instr == 'I_EXIT':
             self.running = False
 
         else:

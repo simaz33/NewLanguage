@@ -12,7 +12,7 @@ class Scope():
             self.members[name] = node
             return
 
-        print(f'{self.filename}:{nameToken.lineNr}:duplicate variable: {name}')
+        print(f'{self.filename}:{nameToken.lineNr}: duplicate variable: {name}')
         gv.errors = True
 
     def resolveName(self, nameToken):

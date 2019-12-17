@@ -28,15 +28,15 @@ def main():
     if gv.errors:
         exit(1)
         
+    #printer = ASTPrinter()
+    #printer.print('root', root)
+    
     writer = CodeWriter()
     root.genCode(writer)
     writer.dumpCode()
 
     vm = VM(writer.code)
     vm.exec()
-
-    #printer = ASTPrinter()
-    #printer.print('root', root)
 
 if __name__ == '__main__':
     main()
