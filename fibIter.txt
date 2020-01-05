@@ -1,0 +1,15 @@
+int main(){
+    return fib(13)
+}
+int fib(int n){
+    int prevPrevNr, prevNr = 0, currNr = 1
+    int i = 1
+
+    while (i < n){
+        prevPrevNr = prevNr
+        prevNr = currNr
+        currNr = prevPrevNr + prevNr
+        i++
+    }
+    return currNr
+}

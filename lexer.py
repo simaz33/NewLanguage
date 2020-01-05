@@ -57,6 +57,7 @@ class Lexer():
             'MINUS_OP'          :   self.lexMinusOp,
             'MULT_OP'           :   self.lexMultOp,
             'DIV_OP'            :   self.lexDivOp,
+            'MOD_OP'            :   self.lexModOp,
             'OR_OP'             :   self.lexOrOp,
             'AND_OP'            :   self.lexAndOp,
             'NOT_OP'            :   self.lexNotOp,
@@ -135,6 +136,9 @@ class Lexer():
 
         elif self.currentChar is '/':
             self.beginToken('DIV_OP')
+
+        elif self.currentChar == '%':
+            self.beginToken('MOD_OP')
 
         elif self.currentChar is '<':
             self.beginToken('COMP_L')
@@ -398,6 +402,9 @@ class Lexer():
 
         else:
             self.completeToken('DIV_OP', False)
+
+    def lexModOp(self):
+        self.completeToken('MOD_OP', False)
 
     def lexOrOp(self):
         if self.currentChar is '|':

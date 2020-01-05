@@ -3,6 +3,7 @@ from checkTypes import *
 from token import Token
 import genCode as gc
 import globalVars as gv
+import convert
 
 class Node():
     parent = None
@@ -176,6 +177,8 @@ class ExprBinary(Expr):
             w.write(f'I_{kind}_MULT')
         elif op == 'DIV_OP':
             w.write(f'I_{kind}_DIV')
+        elif op == 'MOD_OP':
+            w.write('I_INT_MOD')
         elif op == 'COMP_L':
             w.write(f'I_{kind}_LESS')
         elif op == 'COMP_LE':
@@ -335,11 +338,12 @@ class ExprLit(Expr):
         if litType == 'INT':
             w.write('I_INT_PUSH', self.lit.value)
         elif litType == 'FLOAT':
-            value = gv.bytes2Int(self.lit.value)
+            value = convert.float2Bytes(self.lit.value)
             w.write('I_FLOAT_PUSH', value)
         elif litType == 'STR':
-            value = gv.bytes2Int(self.lit.value)
-            w.write('I_STRING_PUSH', value)
+            pos = len(gv.strLits)
+            gv.strLits.append(self.lit.value)
+            w.write('I_STRING_PUSH', pos)
         elif litType == 'TRUE_KW':
             w.write('I_BOOLEAN_PUSH', 1)
         elif litType == 'FALSE_KW':
@@ -456,7 +460,11 @@ class StmtAssign(Stmt):
         p.print('value', self.value)
 
     def resolveNames(self, scope):
-        self.targetNode = scope.resolveName(self.target)
+        if isinstance(self.target, Token):
+            self.targetNode = scope.resolveName(self.target)
+        else:
+            self.targetNode = scope.resolveName(self.target.name)
+
         self.value.resolveNames(scope)
 
     def checkTypes(self):
@@ -603,28 +611,41 @@ class StmtWhile(StmtLoop):
         w.placeLabel(self.endL)
 
 class StmtInput(Stmt):
-    def __init__(self, inputKw, args):
+    def __init__(self, inputKw, arg):
         self.inputKw = inputKw
-        self.args = args
+        self.arg = arg
 
     def printNode(self, p):
         p.print('input_kw', self.inputKw)
-        p.print('args', self.args) 
+        p.print('arg', self.arg) 
 
     def resolveNames(self, scope):
-        [arg.resolveNames(scope) for arg in self.args]
+        self.arg.resolveNames(scope)
+
+    def checkTypes(self):
+        self.arg.checkTypes()
+
+    def genCode(self, w):
+        w.write('I_STDIN', self.arg.targetNode.stackSlot)
 
 class StmtOutput(Stmt):
-    def __init__(self, outputKw, results):
+    def __init__(self, outputKw, result):
         self.outputKw = outputKw
-        self.results = results
+        self.result = result
 
     def printNode(self, p):
         p.print('output_kw', self.outputKw)
-        p.print('value', self.results)
+        p.print('value', self.result)
 
     def resolveNames(self, scope):
-        [result.resolveNames(scope) for result in self.results]
+        self.result.resolveNames(scope)
+
+    def checkTypes(self):
+        self.result.checkTypes()
+
+    def genCode(self, w):
+        self.result.genCode(w)
+        w.write('I_STDOUT')
     
 class StmtBreak(Stmt):
     def __init__(self, breakKw):

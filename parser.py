@@ -1,4 +1,5 @@
 import ast
+import time
 
 class Parser():
     def __init__(self, tokens, filename):
@@ -68,7 +69,9 @@ class Parser():
         while True:
             token = self.accept('ASSIGN_OP')
             if token:
-                result = ast.StmtAssign(token, result, self.parseExprOr())
+                test = self.parseExprOr()
+                result = ast.StmtAssign(token, result, test)
+                
             else:
                 break
         
@@ -183,6 +186,11 @@ class Parser():
             token = self.accept('DIV_OP')
             if token:
                 result = ast.ExprBinArith(token, result, self.parseExprUnary())
+                continue
+            
+            token = self.accept('MOD_OP')
+            if token:
+                result = ast.ExprBinArith(token, result, self.parseExprUnary())
             else:
                 break
 
@@ -275,7 +283,15 @@ class Parser():
             return ast.ExprUnarArith(token, ast.ExprVar(name))
         
         if self.tokenType() == 'IDENT':
-            self.error(f'Unexpected token {self.tokenType()}')
+            if self.testTokens('IDENT', 'ASSIGN_OP'):
+                pass
+            elif self.testTokens('IDENT', 'INC'):
+                pass
+            elif self.testTokens('IDENT', 'DEC'):
+                pass
+            else:
+                print(self.tokens[self.offset].value)
+                self.error(f'Unexpected token {self.tokenType()}')
         
         return ast.ExprVar(name)
 
@@ -357,13 +373,11 @@ class Parser():
 
         while not self.tokenType() == 'CURL_PAREN_CLOSE':
             stmt = self.parseStmt()
-            
             if stmt:
                 if isinstance(stmt, list):
                     [stmts.append(s) for s in stmt]
                 else:
                     stmts.append(stmt)
-
             else:
                 break
 
@@ -414,18 +428,18 @@ class Parser():
     def parseStmtOutput(self):
         outputKw = self.expect('OUTPUT_KW')
         self.expect('PAREN_OPEN')
-        results = self.parseExprs()
+        result = self.parseExpr()
         self.expect('PAREN_CLOSE')
 
-        return ast.StmtOutput(outputKw, results)
+        return ast.StmtOutput(outputKw, result)
 
     def parseStmtInput(self):
         inputKw = self.expect('INPUT_KW')
         self.expect('PAREN_OPEN')
-        args = self.parseArgs()
+        arg = self.parseExpr()
         self.expect('PAREN_CLOSE')
 
-        return ast.StmtInput(inputKw, args)
+        return ast.StmtInput(inputKw, arg)
 
     def parseStmtWhile(self):
         self.expect('WHILE_KW')
@@ -489,11 +503,11 @@ class Parser():
         return ast.StmtReturn(retKw, value)
 
     def parseStmtAssign(self):
-        target = self.expect('IDENT')
-        op = self.expect('ASSIGN_OP')
-        value = self.parseExpr()
-        
-        return ast.StmtAssign(op, target, value)
+        #target = self.expect('IDENT')
+        #op = self.expect('ASSIGN_OP')
+        #value = self.parseExpr()
+        #return ast.StmtAssign(op, target, value)
+        return self.parseExprAssign()
 
     def parseType(self):
         if self.tokenType() == 'INT_KW':

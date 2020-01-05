@@ -27,7 +27,7 @@ def main():
 
     if gv.errors:
         exit(1)
-        
+
     #printer = ASTPrinter()
     #printer.print('root', root)
     

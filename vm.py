@@ -1,5 +1,6 @@
 STACK_LOCATION = 1024
 import globalVars as gv
+import convert
 
 class VM():
     def __init__(self, code):
@@ -62,11 +63,16 @@ class VM():
             a = self.pop()
             self.push(a / b)
 
-        elif instr in ['I_INC']:
+        elif instr == 'I_INT_MOD':
+            b = self.pop()
+            a = self.pop()
+            self.push(a % b)
+
+        elif instr == 'I_INC':
             a = self.pop()
             self.push(a + 1)
 
-        elif instr in ['I_DEC']:
+        elif instr == 'I_DEC':
             a = self.pop()
             self.push(a - 1)
         
@@ -124,11 +130,12 @@ class VM():
         elif instr == 'I_INT_PUSH': 
             self.push(self.readImm())
 
-        elif instr == 'I_FLOAT_PUSH': 
-            self.push(gv.int2Float(self.readImm()))
+        elif instr == 'I_FLOAT_PUSH': #TODO Use struct's pack/unpack
+            self.push(convert.bytes2Float(self.readImm()))
 
-        elif instr == 'I_STRING_PUSH': 
-            self.push(gv.int2Str(self.readImm()))
+        elif instr == 'I_STRING_PUSH': #TODO Use struct's pack/unpack
+            index = self.readImm()
+            self.push(gv.strLits[index])
 
         elif instr == 'I_BOOLEAN_PUSH': 
             self.push(self.readImm())
@@ -158,6 +165,14 @@ class VM():
         
         elif instr == 'I_CALL':
             self.execCall(self.readImm(), self.readImm())
+
+        elif instr == 'I_STDOUT':
+            value = self.pop()
+            print(value)
+
+        elif instr == 'I_STDIN':
+            index = self.readImm()
+            self.memory[self.fp + index] = input()
 
         elif instr == 'I_EXIT':
             self.running = False

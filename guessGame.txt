@@ -1,0 +1,24 @@
+int main(){
+    int steps = 1
+    int num = 666
+    int guess
+
+    while (true){
+        output("Enter a number")
+        input(guess)
+
+        if (guess > num){
+            output("The number is too high")
+        }
+        elseif (guess < num){
+            output("The number is too low")
+        }
+        else{
+            output("You got it")
+            break
+        }
+        steps++
+    }
+    output("Steps needed to guess")
+    output(steps)
+}
