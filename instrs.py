@@ -60,4 +60,7 @@ addInstr(0x46, 'I_EXIT', 0)
 
 #Standard input/output
 addInstr(0x50, 'I_STDOUT', 0)
-addInstr(0x51, 'I_STDIN', 1)
+addInstr(0x51, 'I_STDIN_STRING', 1)
+addInstr(0x52, 'I_STDIN_INT', 1)
+addInstr(0x53, 'I_STDIN_FLOAT', 1)
+addInstr(0x54, 'I_STDIN_BOOLEAN', 1)

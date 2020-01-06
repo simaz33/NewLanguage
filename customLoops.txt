@@ -1,0 +1,25 @@
+int main(){
+    int i = 2
+    boolean prime = true
+
+    while (i < 100){
+        int j = 2
+        prime = true
+        while (j < i){
+            if ((i % j) == 0){
+                prime = false
+                break
+            }
+            else{
+                j++
+                continue
+            }
+        }
+        if (prime){
+            output(i)
+        }
+        i++
+    }
+
+    return 0
+}

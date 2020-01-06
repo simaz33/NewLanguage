@@ -626,7 +626,8 @@ class StmtInput(Stmt):
         self.arg.checkTypes()
 
     def genCode(self, w):
-        w.write('I_STDIN', self.arg.targetNode.stackSlot)
+        argType = self.arg.targetNode.type.kind
+        w.write(f'I_STDIN_{argType.upper()}', self.arg.targetNode.stackSlot)
 
 class StmtOutput(Stmt):
     def __init__(self, outputKw, result):

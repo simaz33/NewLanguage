@@ -170,9 +170,21 @@ class VM():
             value = self.pop()
             print(value)
 
-        elif instr == 'I_STDIN':
+        elif instr == 'I_STDIN_STRING':
             index = self.readImm()
             self.memory[self.fp + index] = input()
+
+        elif instr == 'I_STDIN_INT':
+            index = self.readImm()
+            self.memory[self.fp + index] = int(input())
+
+        elif instr == 'I_STDIN_FLOAT':
+            index = self.readImm()
+            self.memory[self.fp + index] = float(input())
+
+        elif instr == 'I_STDIN_INT':
+            index = self.readImm()
+            self.memory[self.fp + index] = int(bool(input()))
 
         elif instr == 'I_EXIT':
             self.running = False
