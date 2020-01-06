@@ -212,7 +212,8 @@ class ExprBinArith(ExprBinary):
             if leftType and rightType and leftType.isArithmetic() and rightType.isArithmetic():
                 unifyTypes(leftType, rightType)
             else:
-                semanticError(self.op, f'cannot perform arithmetic operations with types: {leftType.kind} and {rightType.kind}')
+                leftKind = leftType.kind if leftType else None
+                semanticError(self.op, f'cannot perform arithmetic operations with types: {leftKind} and {rightType.kind}')
             return leftType
         else:
             semanticError(self.op, f'no value specified in operation: {self.op.type}')
@@ -236,7 +237,8 @@ class ExprBinEquality(ExprBinary):
         if leftType and leftType.hasValue():
             unifyTypes(leftType, rightType)
         else:
-            semanticError(self.op, f'cannot perform comparison operations with this type: {leftType.kind}')
+            leftKind = leftType.kind if leftType else None
+            semanticError(self.op, f'cannot perform comparison operations with this type: {leftKind}')
         return TypePrim(Token('BOOLEAN_KW', '', self.op.lineNr), 'boolean')
 
 class ExprBinLogic(ExprBinary):
