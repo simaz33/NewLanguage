@@ -1,13 +1,9 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
-
 name: List repo files
 
 on: push
 
 jobs:
   list-files:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -16,5 +12,4 @@ jobs:
         
       - name: List repo files
         working-directory: NewLanguage
-        run: git status
-#    - uses: actions/checkout@v2
+        run: git ls-tree --full-tree -r --name-only HEAD 
