@@ -12,5 +12,8 @@ jobs:
 
     steps:
       - name: List items in repo
-        run: git status
+        run: |
+          git clone https://github.com/simaz33/NewLanguage
+          cd NewLanguage
+          git status
 #    - uses: actions/checkout@v2
